@@ -1,7 +1,6 @@
 """Test the app for web-app"""
 
 import os
-import sys
 import pytest
 from werkzeug.datastructures import FileStorage
 from app import app
@@ -9,12 +8,11 @@ from app import app
 
 
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 @pytest.fixture
 def test_client():
     """Create a test client for the app"""
     app.config["TESTING"] = True
-    app.config["UPLOAD_FOLDER"] = "test_uploads"
+    app.config["UPLOAD_FOLDER"] = "web-app/testing_audio"
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
     with app.test_client() as client:
         yield client
@@ -56,7 +54,7 @@ def test_upload_provided_audio_file():
     # Create a FileStorage object from the Trump audio file
     current_dir = os.path.dirname(os.path.abspath(__file__))
     audio_path = os.path.join(
-        os.path.dirname(current_dir), "tests", "testing_audio", "Trump_Short_Speech.mp3"
+        os.path.dirname(current_dir), "web-app", "testing_audio", "Trump_Short_Speech.mp3"
     )
     with open(audio_path, "rb") as f:
         audio_file = FileStorage(
