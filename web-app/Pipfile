@@ -10,8 +10,8 @@ mutagen = "*"
 Werkzeug = "*"
 Flask = "*"
 pytest = "*"
-pymongo = "*"
 python-dotenv = "*"
+pymongo = "*"
 
 [dev-packages]
 pytest = "*"
