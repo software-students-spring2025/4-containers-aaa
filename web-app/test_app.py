@@ -6,8 +6,6 @@ from werkzeug.datastructures import FileStorage
 from app import app
 
 
-
-
 @pytest.fixture
 def test_client():
     """Create a test client for the app"""
@@ -54,7 +52,10 @@ def test_upload_provided_audio_file():
     # Create a FileStorage object from the Trump audio file
     current_dir = os.path.dirname(os.path.abspath(__file__))
     audio_path = os.path.join(
-        os.path.dirname(current_dir), "web-app", "testing_audio", "Trump_Short_Speech.mp3"
+        os.path.dirname(current_dir),
+        "web-app",
+        "testing_audio",
+        "Trump_Short_Speech.mp3",
     )
     with open(audio_path, "rb") as f:
         audio_file = FileStorage(
