@@ -4,7 +4,6 @@ This file contains the routes for the web application.
 """
 
 import os
-import json
 from datetime import datetime
 from mutagen.easyid3 import EasyID3
 from flask import Flask, render_template, request
@@ -12,33 +11,9 @@ from flask import Flask, render_template, request
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = os.path.join("static", "uploaded_audio")
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50MB max file size
-METADATA_FILE = "audio_metadata.json"
 
 # Ensure upload directory exists
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-
-# Load existing metadata or create new metadata file
-def load_metadata():
-    """
-    Loads metadata from JSON file or returns empty dict if file doesn't exist.
-    
-    Returns:
-        dict: The loaded metadata or empty dict if file doesn't exist
-    """
-    if os.path.exists(METADATA_FILE):
-        with open(METADATA_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return {}
-
-def save_metadata(metadata):
-    """
-    Saves metadata to JSON file.
-    
-    Args:
-        metadata (dict): The metadata to save
-    """
-    with open(METADATA_FILE, 'w', encoding='utf-8') as f:
-        json.dump(metadata, f, indent=4)
 
 
 @app.route("/")
