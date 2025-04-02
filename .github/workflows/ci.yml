@@ -20,12 +20,9 @@ jobs:
           pipenv install -e .
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install --user pipenv
-          pipenv --python $(which python)
-          pipenv install flask
-          pipenv install mutagen
-          pipenv install Werkzeug
+          pip install flask
+          pip install mutagen
+          pip install Werkzeug
       - name: Test with pytest
         run: |
           pipenv install pytest
