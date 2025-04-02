@@ -12,6 +12,7 @@ Flask = "*"
 pytest = "*"
 python-dotenv = "*"
 pymongo = "*"
+typing-extensions = "*"
 tomli = "*"
 
 [dev-packages]
