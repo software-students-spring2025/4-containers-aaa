@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+deepgram-sdk = "*"  
+python-dotenv = "*"
 
 [dev-packages]
 
