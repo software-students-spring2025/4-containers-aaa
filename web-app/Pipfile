@@ -6,8 +6,13 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+mutagen = "*"
+Werkzeug = "*"
+Flask = "*"
+pytest = "*"
 
 [dev-packages]
+pytest = "*"
 
 [requires]
 python_version = "3.10"
