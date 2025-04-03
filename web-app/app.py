@@ -8,8 +8,9 @@ from datetime import datetime, timezone
 from mutagen.easyid3 import EasyID3
 from flask import Flask, render_template, request
 from pymongo import MongoClient
-from dotenv import load_dotenv
 from pymongo.errors import PyMongoError
+from dotenv import load_dotenv
+
 
 # Load environment variables from .env file
 load_dotenv()
