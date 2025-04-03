@@ -28,7 +28,7 @@ db = client[mongo_db_name]
 collection = db["transcriptions"]
 
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = os.path.join("web-app", "static", "uploaded_audio")
+app.config["UPLOAD_FOLDER"] = os.path.join("static", "uploaded_audio")
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50MB max file size
 
 # Ensure upload directory exists
