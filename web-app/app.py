@@ -23,7 +23,6 @@ client = MongoClient(f"mongodb://{mongo_username}:{mongo_password}@localhost:{mo
 db = client[mongo_db_name]
 collection = db["transcriptions"]
 
-
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = os.path.join("web-app", "static", "uploaded_audio")
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50MB max file size
@@ -59,10 +58,6 @@ def upload():
     """
     Handles the upload of audio files and associated metadata.
 
-    This route processes POST requests containing:
-    - An audio file
-    - Form data including title, speaker, date, and description
-
     Returns:
         str: A success message if the upload is successful
         tuple: (error message, status code) if the upload fails
@@ -70,7 +65,6 @@ def upload():
     Raises:
         400: If no audio file is provided or if no file is selected
     """
-    # check if the audio file is provided
     if "audio" not in request.files:
         return "No audio file", 400
 
@@ -78,54 +72,47 @@ def upload():
     if file.filename == "":
         return "No selected file", 400
 
-    # save the file to the uploads folder in the root directory
     if file:
         try:
-            # Generate unique filename
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"{timestamp}_{file.filename}"
             filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            print("filename:", filename)
-            print("filepath:", filepath)
             file.save(filepath)
         except (OSError, IOError) as e:
-            print("Error saving file:", e)
             return "Error saving file", 500
 
-        # get data from the form
         try:
             title = request.form["title"]
             speaker = request.form["speaker"]
             date = request.form["date"]
             description = request.form["description"]
-            print("Got data from page:", title, speaker, date, description)
 
-            audio = EasyID3(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+            audio = EasyID3(filepath)
             audio["title"] = title
             audio["artist"] = speaker
             audio["date"] = date
             audio.save()
         except (OSError, IOError) as e:
-            print("Error saving metadata:", e)
             return "Error saving metadata", 500
 
     return "File uploaded successfully", 200
 
-#CRUD 
+
 def upload_entry(file_path, title=None, speaker=None, date=None, context=None, word_count=0, top_words=None):
     """
     Uploads an entry to the MongoDB collection with the given metadata.
     Stores default values if fields are empty or None.
+    Returns True if successful, False if failed.
     """
     new_entry = {
         "_id": file_path,
-        "title": title if title else "Untitled",
-        "speaker": speaker if speaker else "Unknown",
-        "date": date if date else "N/A",
-        "context": context if context else "No context provided",
+        "title": title or "Untitled",
+        "speaker": speaker or "Unknown",
+        "date": date or "N/A",
+        "context": context or "No context provided",
         "transcript": "",
         "word_count": word_count,
-        "top_words": top_words if top_words else [],
+        "top_words": top_words or [],
         "audio_file": file_path,
         "created_at": datetime.now(timezone.utc)
     }
@@ -133,8 +120,9 @@ def upload_entry(file_path, title=None, speaker=None, date=None, context=None, w
     try:
         result = collection.insert_one(new_entry)
         return result.acknowledged
-    except Exception:
+    except Exception as e:
         return False
+
 
 def delete_entry(file_path):
     """
@@ -143,8 +131,8 @@ def delete_entry(file_path):
     """
     try:
         result = collection.delete_one({"_id": file_path})
-        return result.deleted_count > 0  
-    except Exception:
+        return result.deleted_count > 0
+    except Exception as e:
         return False
 
 
@@ -152,7 +140,7 @@ def search_entry(file_path=None, title=None, speaker=None):
     """
     Searches for entries in the MongoDB collection based on file path, title, or speaker.
     Performs a partial and case-insensitive match.
-    Returns list of matching documents if found，False if no matching entries are found.
+    Returns a list of matching documents if found, or False if no matching entries are found.
     """
     query = {}
 
@@ -165,11 +153,13 @@ def search_entry(file_path=None, title=None, speaker=None):
     if speaker:
         query["speaker"] = {"$regex": speaker, "$options": "i"}
 
-    results = list(collection.find(query))
-    return results if results else False
+    try:
+        results = list(collection.find(query))
+        return results if results else False
+    except Exception as e:
+        return False
 
 
-#update_entry("uploads/audio_001.mp3", {"speaker": "John", "context": "Updated meeting notes"})
 def update_entry(file_path, update_fields):
     """
     Updates an existing entry in the MongoDB collection.
@@ -180,10 +170,9 @@ def update_entry(file_path, update_fields):
             {"_id": file_path},
             {"$set": update_fields}
         )
-        return result.modified_count > 0  
-    except Exception:
+        return result.modified_count > 0
+    except Exception as e:
         return False
-
 
 
 if __name__ == "__main__":
