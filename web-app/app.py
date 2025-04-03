@@ -98,21 +98,32 @@ def upload():
     return "File uploaded successfully", 200
 
 
-def upload_entry(file_path, title=None, speaker=None, date=None, context=None, word_count=0, top_words=None):
+def upload_entry(file_path, field_value_dict=None):
     """
     Uploads an entry to the MongoDB collection with the given metadata.
     Stores default values if fields are empty or None.
     Returns True if successful, False if failed.
+
+    Args:
+        file_path (str): The file path of the audio file.
+        field_value_dict (dict): A dictionary containing metadata fields and their values.
+
+    Returns:
+        bool: True if the entry was uploaded successfully, False otherwise.
     """
+    if field_value_dict is None:
+        field_value_dict = {}
+
+    # Create a new entry with default values or values from the dictionary
     new_entry = {
         "_id": file_path,
-        "title": title or "Untitled",
-        "speaker": speaker or "Unknown",
-        "date": date or "N/A",
-        "context": context or "No context provided",
-        "transcript": "",
-        "word_count": word_count,
-        "top_words": top_words or [],
+        "title": field_value_dict.get("title", "Untitled"),
+        "speaker": field_value_dict.get("speaker", "Unknown"),
+        "date": field_value_dict.get("date", "N/A"),
+        "context": field_value_dict.get("context", "No context provided"),
+        "transcript": field_value_dict.get("transcript", ""),
+        "word_count": field_value_dict.get("word_count", 0),
+        "top_words": field_value_dict.get("top_words", []),
         "audio_file": file_path,
         "created_at": datetime.now(timezone.utc)
     }
@@ -120,7 +131,7 @@ def upload_entry(file_path, title=None, speaker=None, date=None, context=None, w
     try:
         result = collection.insert_one(new_entry)
         return result.acknowledged
-    except Exception as e:
+    except Exception:
         return False
 
 
@@ -132,7 +143,7 @@ def delete_entry(file_path):
     try:
         result = collection.delete_one({"_id": file_path})
         return result.deleted_count > 0
-    except Exception as e:
+    except Exception:
         return False
 
 
@@ -156,7 +167,7 @@ def search_entry(file_path=None, title=None, speaker=None):
     try:
         results = list(collection.find(query))
         return results if results else False
-    except Exception as e:
+    except Exception:
         return False
 
 
@@ -171,7 +182,7 @@ def update_entry(file_path, update_fields):
             {"$set": update_fields}
         )
         return result.modified_count > 0
-    except Exception as e:
+    except Exception:
         return False
 
 
