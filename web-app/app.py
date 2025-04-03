@@ -3,6 +3,25 @@ The main file for the web application.
 This file contains the routes for the web application.
 """
 
+import os
+from datetime import datetime, timezone
+from mutagen.easyid3 import EasyID3
+from flask import Flask, render_template, request
+from pymongo import MongoClient
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Connect to MongoDB
+mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME")
+mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
+mongo_port = os.getenv("MONGO_PORT", "27017")
+mongo_db_name = os.getenv("MONGO_DB_NAME", "voice_data")
+
+client = MongoClient(f"mongodb://{mongo_username}:{mongo_password}@localhost:{mongo_port}/")
+db = client[mongo_db_name]
+collection = db["transcriptions"]
 
 
 app = Flask(__name__)
@@ -92,9 +111,6 @@ def upload():
 
     return "File uploaded successfully", 200
 
-
-
-
 #CRUD 
 def upload_entry(file_path, title=None, speaker=None, date=None, context=None, word_count=0, top_words=None):
     """
@@ -111,7 +127,7 @@ def upload_entry(file_path, title=None, speaker=None, date=None, context=None, w
         "word_count": word_count,
         "top_words": top_words if top_words else [],
         "audio_file": file_path,
-        "created_at": datetime.utcnow()
+        "created_at": datetime.now(timezone.utc)
     }
 
     try:
@@ -172,6 +188,3 @@ def update_entry(file_path, update_fields):
 
 if __name__ == "__main__":
     app.run(debug=True)
-    search_entry()
-
-
