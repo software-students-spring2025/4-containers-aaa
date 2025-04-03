@@ -9,6 +9,7 @@ from mutagen.easyid3 import EasyID3
 from flask import Flask, render_template, request
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from pymongo.errors import PyMongoError
 
 # Load environment variables from .env file
 load_dotenv()
@@ -78,7 +79,7 @@ def upload():
             filename = f"{timestamp}_{file.filename}"
             filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
             file.save(filepath)
-        except (OSError, IOError) as e:
+        except (OSError, IOError):
             return "Error saving file", 500
 
         try:
@@ -92,7 +93,7 @@ def upload():
             audio["artist"] = speaker
             audio["date"] = date
             audio.save()
-        except (OSError, IOError) as e:
+        except (OSError, IOError):
             return "Error saving metadata", 500
 
     return "File uploaded successfully", 200
@@ -131,7 +132,7 @@ def upload_entry(file_path, field_value_dict=None):
     try:
         result = collection.insert_one(new_entry)
         return result.acknowledged
-    except Exception:
+    except PyMongoError:
         return False
 
 
@@ -143,7 +144,7 @@ def delete_entry(file_path):
     try:
         result = collection.delete_one({"_id": file_path})
         return result.deleted_count > 0
-    except Exception:
+    except PyMongoError:
         return False
 
 
@@ -167,7 +168,7 @@ def search_entry(file_path=None, title=None, speaker=None):
     try:
         results = list(collection.find(query))
         return results if results else False
-    except Exception:
+    except PyMongoError:
         return False
 
 
@@ -182,7 +183,7 @@ def update_entry(file_path, update_fields):
             {"$set": update_fields}
         )
         return result.modified_count > 0
-    except Exception:
+    except PyMongoError:
         return False
 
 
