@@ -3,10 +3,11 @@
 
 import os
 import io
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from werkzeug.datastructures import FileStorage
 import pytest
-from app import app
+from pymongo.errors import PyMongoError
+from app import app, upload_entry, search_entry, update_entry, delete_entry
 
 
 @pytest.fixture
@@ -86,3 +87,81 @@ def test_upload_provided_audio_file(test_client):
             assert response.status_code == 200
             assert b"File uploaded successfully" in response.data
             mock_upload_entry.assert_called_once()
+
+
+@patch("app.collection.insert_one")
+def test_upload_entry(mock_insert):
+    """Test the upload_entry function."""
+    # Successful upload
+    mock_insert.return_value = MagicMock(acknowledged=True)
+    assert upload_entry("test/audio.mp3", {"title": "Test"})
+
+    # Upload with default values
+    assert upload_entry("test/audio.mp3")
+
+    # Upload failure (DB error)
+    mock_insert.side_effect = PyMongoError()
+    assert not upload_entry("test/audio.mp3")
+
+    # No file path provided
+    assert not upload_entry("")
+
+
+# Test delete_entry
+@patch("app.collection.delete_one")
+def test_delete_entry(mock_delete):
+    """Test the delete_entry function."""
+    # Successful deletion
+    mock_delete.return_value = MagicMock(deleted_count=1)
+    assert delete_entry("test/audio.mp3")
+
+    # Deletion failed (no such file)
+    mock_delete.return_value = MagicMock(deleted_count=0)
+    assert not delete_entry("nonexistent.mp3")
+
+    # No file path or error
+    mock_delete.side_effect = PyMongoError()
+    assert not delete_entry("")
+    assert not delete_entry("test/audio.mp3")
+
+
+# Test search_entry
+@patch("app.collection.find")
+def test_search_entry(mock_find):
+    """Test the search_entry function."""
+    # Successful search with one match
+    mock_find.return_value = [
+        {"_id": "test/audio.mp3", "title": "Test", "speaker": "John"}
+    ]
+    assert search_entry(file_path="test")
+
+    # No results found
+    mock_find.return_value = []
+    assert not search_entry(file_path="missing")
+
+    # Search with multiple fields
+    mock_find.return_value = [
+        {"_id": "test/audio.mp3", "title": "Test", "speaker": "John"}
+    ]
+    assert search_entry(file_path="test", title="Test", speaker="John")
+
+    # Error during search
+    mock_find.side_effect = PyMongoError()
+    assert not search_entry(file_path="error")
+
+
+# Test update_entry
+@patch("app.collection.update_one")
+def test_update_entry(mock_update):
+    """Test the update_entry function."""
+    # Successful update
+    mock_update.return_value = MagicMock(modified_count=1)
+    assert update_entry("test/audio.mp3", {"title": "Updated"})
+
+    # Update failed (no changes made)
+    mock_update.return_value = MagicMock(modified_count=0)
+    assert not update_entry("test/audio.mp3", {"title": "No change"})
+
+    # Update error
+    mock_update.side_effect = PyMongoError()
+    assert not update_entry("test/audio.mp3", {"title": "Error"})
