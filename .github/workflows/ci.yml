@@ -24,13 +24,15 @@ jobs:
         with:
           python-version: "3.10"
 
-      # Install MongoDB client on the runner
+      # Install MongoDB client
       - name: Install MongoDB client
         run: |
+          wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
           sudo apt-get update
-          sudo apt-get install -y mongodb-clients
+          sudo apt-get install -y mongodb-org-shell
 
-      # Wait for MongoDB to initialize
+      # Wait for MongoDB to start
       - name: Wait for MongoDB to start
         run: sleep 20
 
@@ -59,5 +61,6 @@ jobs:
           cd web-app
           pipenv install pytest
           pipenv run pytest
+
 
 
