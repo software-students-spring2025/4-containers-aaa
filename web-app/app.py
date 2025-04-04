@@ -1,16 +1,12 @@
-"""
-The main file for the web application.
-This file contains the routes for the web application.
-"""
+"""Test the app for web-app"""
 
 import os
 from datetime import datetime, timezone
-from mutagen.easyid3 import EasyID3
-from flask import Flask, render_template, request
+import pytest
+from werkzeug.datastructures import FileStorage
 from pymongo import MongoClient
-from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
-
+from app import app, delete_entry, update_entry, upload_entry, search_entry
 
 # Load environment variables from .env file
 load_dotenv()
@@ -19,194 +15,119 @@ load_dotenv()
 mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME")
 mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
 mongo_port = os.getenv("MONGO_PORT", "27017")
-mongo_db_name = os.getenv("MONGO_DB_NAME", "voice_data")
+MONGO_DB_NAME = "voice_data_test"
 
-client = MongoClient(f"mongodb://{mongo_username}:{mongo_password}@localhost:{mongo_port}/")
-db = client[mongo_db_name]
+mongo_client = MongoClient(
+    f"mongodb://{mongo_username}:{mongo_password}@localhost:{mongo_port}/"
+)
+db = mongo_client[MONGO_DB_NAME]
 collection = db["transcriptions"]
 
-app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = os.path.join("web-app", "static", "uploaded_audio")
-app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50MB max file size
-
-# Ensure upload directory exists
-os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-
-
-@app.route("/")
-def index():
-    """
-    Renders the home page of the application.
-
-    Returns:
-        str: The rendered HTML template for the index page.
-    """
-    return render_template("index.html")
+@pytest.fixture
+def test_client():
+    """Create a test client for the app"""
+    app.config["TESTING"] = True
+    app.config["UPLOAD_FOLDER"] = "web-app/testing_audio"
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+    with app.test_client() as client:
+        yield client
+    # Cleanup after tests
+    for file in os.listdir(app.config["UPLOAD_FOLDER"]):
+        os.remove(os.path.join(app.config["UPLOAD_FOLDER"], file))
+    os.rmdir(app.config["UPLOAD_FOLDER"])
 
 
-@app.route("/create")
-def create():
-    """
-    Renders the create new audio page.
-
-    Returns:
-        str: The rendered HTML template for the create page.
-    """
-    return render_template("create.html")
+def test_index_route():
+    """Test that the index route returns 200"""
+    response = app.test_client().get("/")
+    assert response.status_code == 200
 
 
-@app.route("/upload", methods=["POST"])
-def upload():
-    """
-    Handles the upload of audio files and associated metadata.
-
-    This route processes POST requests containing:
-    - An audio file
-    - Form data including title, speaker, date, and description
-
-    Returns:
-        str: A success message if the upload is successful
-        tuple: (error message, status code) if the upload fails
-
-    Raises:
-        400: If no audio file is provided or if no file is selected
-    """
-    # check if the audio file is provided
-    if "audio" not in request.files:
-        return "No audio file", 400
-
-    file = request.files["audio"]
-    if file.filename == "":
-        return "No selected file", 400
-
-    # save the file to the uploads folder in the root directory
-    if file:
-        try:
-            # Generate unique filename
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"{timestamp}_{file.filename}"
-            filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            print("filename:", filename)
-            print("filepath:", filepath)
-            file.save(filepath)
-        except (OSError, IOError) as e:
-            print("Error saving file:", e)
-            return "Error saving file", 500
-
-        # get data from the form
-        try:
-            title = request.form["title"]
-            speaker = request.form["speaker"]
-            date = request.form["date"]
-            description = request.form["description"]
-            print("Got data from page:", title, speaker, date, description)
-
-            audio = EasyID3(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            audio["title"] = title
-            audio["artist"] = speaker
-            audio["date"] = date
-            audio.save()
-        except (OSError, IOError) as e:
-            print("Error saving metadata:", e)
-            return "Error saving metadata", 500
-
-    return "File uploaded successfully", 200
+def test_create_route():
+    """Test that the create route returns 200"""
+    response = app.test_client().get("/create")
+    assert response.status_code == 200
 
 
-def upload_entry(file_path, field_value_dict=None):
-    """
-    Uploads an entry to the MongoDB collection with the given metadata.
-    Stores default values if fields are empty or None.
-    Returns True if successful, False if failed.
-
-    Args:
-        file_path (str): The file path of the audio file.
-        field_value_dict (dict): A dictionary containing metadata fields and their values.
-
-    Returns:
-        bool: True if the entry was uploaded successfully, False otherwise.
-    """
-    if not file_path:
-        return False
-    
-    if field_value_dict is None:
-        field_value_dict = {}
-
-    # Create a new entry with default values or values from the dictionary
-    new_entry = {
-        "_id": file_path,
-        "title": field_value_dict.get("title", "Untitled"),
-        "speaker": field_value_dict.get("speaker", "Unknown"),
-        "date": field_value_dict.get("date", "N/A"),
-        "context": field_value_dict.get("context", "No context provided"),
-        "transcript": field_value_dict.get("transcript", ""),
-        "word_count": field_value_dict.get("word_count", 0),
-        "top_words": field_value_dict.get("top_words", []),
-        "audio_file": file_path,
-        "created_at": datetime.now(timezone.utc)
-    }
-
-    try:
-        result = collection.insert_one(new_entry)
-        return result.acknowledged
-    except PyMongoError:
-        return False
+def test_upload_no_file():
+    """Test upload route with no file"""
+    response = app.test_client().post("/upload", data={})
+    assert response.status_code == 400
+    assert b"No audio file" in response.data
 
 
-def delete_entry(file_path):
-    """
-    Deletes an entry from the MongoDB collection by file path.
-    Returns True if successful, False if no entry was found or failed.
-    """
-    if not file_path:
-        return False
-
-    try:
-        result = collection.delete_one({"_id": file_path})
-        return result.deleted_count > 0
-    except PyMongoError:
-        return False
+def test_upload_empty_file():
+    """Test upload route with empty file"""
+    data = {"audio": (b"", "")}
+    response = app.test_client().post("/upload", data=data)
+    assert response.status_code == 400
+    assert b"No selected file" in response.data
 
 
-def search_entry(file_path=None, title=None, speaker=None):
-    """
-    Searches for entries in the MongoDB collection based on file path, title, or speaker.
-    Performs a partial and case-insensitive match.
-    Returns a list of matching documents if found, or False if no matching entries are found.
-    """
-    query = {}
-
-    if file_path:
-        query["_id"] = {"$regex": file_path, "$options": "i"}
-
-    if title:
-        query["title"] = {"$regex": title, "$options": "i"}
-
-    if speaker:
-        query["speaker"] = {"$regex": speaker, "$options": "i"}
-
-    try:
-        results = list(collection.find(query))
-        return results if results else False
-    except PyMongoError:
-        return False
-
-
-def update_entry(file_path, update_fields):
-    """
-    Updates an existing entry in the MongoDB collection.
-    Returns True if update was successful, False if failed.
-    """
-    try:
-        result = collection.update_one(
-            {"_id": file_path},
-            {"$set": update_fields}
+def test_upload_provided_audio_file():
+    """Test upload route with normal audio file"""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    audio_path = os.path.join(
+        os.path.dirname(current_dir), "web-app", "testing_audio", "Trump_Short_Speech.mp3"
+    )
+    with open(audio_path, "rb") as audio_file:
+        file_storage = FileStorage(
+            stream=audio_file, filename="Trump_Short_Speech.mp3", content_type="audio/mpeg"
         )
-        return result.modified_count > 0
-    except PyMongoError:
-        return False
+        data = {
+            "audio": file_storage,
+            "title": "Test Title",
+            "speaker": "Trump",
+            "date": "2024-01-01",
+            "description": "Test Description",
+        }
+        response = app.test_client().post("/upload", data=data)
+        assert response.status_code == 200
+        assert b"File uploaded successfully" in response.data
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
-    
+def test_upload_entry():
+    """Test the upload_entry function"""
+    file_path = "uploads/test_audio.mp3"
+    field_value_dict = {
+        "title": "Test Title",
+        "speaker": "Test Speaker",
+        "date": "2024-01-01",
+        "context": "Test context",
+        "transcript": "This is a test transcript",
+        "word_count": 50,
+        "top_words": ["test", "audio", "transcript"],
+        "audio_file": file_path,
+        "created_at": datetime.now(timezone.utc),
+    }
+    assert upload_entry(file_path, field_value_dict) is True, "Should upload entry successfully"
+    assert upload_entry(file_path, field_value_dict) is False, "Should fail to upload duplicate entry"
+    assert upload_entry("", {}) is False, "Should fail to upload with empty file path"
+    assert upload_entry(None, None) is False, "Should fail to upload with None as file path"
+
+
+def test_search_entry():
+    """Test the search_entry function"""
+    file_path = "uploads/test_audio.mp3"
+    assert search_entry(file_path=file_path) is not False, "Should find the existing entry"
+    assert search_entry(file_path="uploads/nonexistent.mp3") is False, "Should return False for non-existent entry"
+    assert search_entry() is not False, "Should return all entries when no criteria are provided"
+    assert search_entry(title="Test") is not False, "Should find entries with partial title match"
+
+
+def test_update_entry():
+    """Test the update_entry function"""
+    file_path = "uploads/test_audio.mp3"
+    update_fields = {"speaker": "Updated Speaker", "context": "Updated context"}
+    assert update_entry(file_path, update_fields) is True, "Should update existing entry"
+    assert update_entry("uploads/nonexistent.mp3", {"speaker": "New Speaker"}) is False, "Should fail for non-existent entry"
+    assert update_entry(file_path, {}) is False, "Should fail to update with empty fields"
+
+
+def test_delete_entry():
+    """Test the delete_entry function"""
+    file_path = "uploads/test_audio.mp3"
+    assert delete_entry(file_path) is True, "Should delete existing entry"
+    assert delete_entry("uploads/nonexistent.mp3") is False, "Should return False for non-existent entry"
+    assert delete_entry("") is False, "Should return False for empty file path"
+    assert delete_entry(None) is False, "Should return False for None as file path"
