@@ -209,6 +209,8 @@ def get_transcript(file_path):
     transcript = entry["transcript"]
     if entry and "transcript" in entry:
         return transcript
+    else
+        return ""
 
 
 def parse_transcript(transcript):
