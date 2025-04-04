@@ -1,3 +1,4 @@
+# pylint: disable=redefined-outer-name
 """Test the app for web-app"""
 
 import os
@@ -84,4 +85,3 @@ def test_upload_provided_audio_file(test_client):
             assert response.status_code == 200
             assert b"File uploaded successfully" in response.data
             mock_upload_entry.assert_called_once()
-
