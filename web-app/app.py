@@ -16,8 +16,6 @@ from dotenv import load_dotenv
 from bson.objectid import ObjectId
 
 
-
-
 # Load environment variables from .env file
 load_dotenv()
 
