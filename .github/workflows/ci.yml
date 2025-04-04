@@ -13,7 +13,7 @@ jobs:
         ports:
           - 27017:27017
         options: >-
-          --health-cmd="mongosh --eval 'db.runCommand({ping: 1})'"
+          --health-cmd="mongo --username admin --password password --eval 'db.runCommand({ping: 1})'"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          
+
       - uses: actions/setup-python@v3
         with:
           python-version: "3.10"
@@ -42,7 +42,7 @@ jobs:
 
       - name: Test connection to MongoDB
         run: |
-          mongosh --host localhost --username admin --password password --eval "db.runCommand({ping: 1})"
+          docker exec $(docker ps -q --filter ancestor=mongo) mongo --username admin --password password --eval "db.runCommand({ping: 1})"
           
       - name: Test with web-app using pytest
         run: |
@@ -53,4 +53,5 @@ jobs:
       - name: Display MongoDB logs on failure
         if: failure()
         run: docker logs $(docker ps -q --filter ancestor=mongo)
+
 
