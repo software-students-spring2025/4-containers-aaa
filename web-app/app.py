@@ -4,12 +4,16 @@ This file contains the routes for the web application.
 """
 
 import os
+import re
+from collections import Counter
+
 from datetime import datetime, timezone
 from mutagen.easyid3 import EasyID3
 from flask import Flask, render_template, request
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
+from bson.objectid import ObjectId
 
 
 # Load environment variables from .env file
@@ -198,6 +202,29 @@ def update_entry(file_path, update_fields):
         return result.modified_count > 0
     except PyMongoError:
         return False
+
+
+def get_transcript(file_path):
+    """
+    get transcript from mongoDB by _id
+    """
+    entry = collection.find_one({"_id": ObjectId(file_path)})
+    transcript = entry["transcript"]
+    if entry and "transcript" in entry:
+        return transcript
+    return ""
+
+
+def parse_transcript(transcript):
+    """
+    parse transcript string into pairs of word, count
+    """
+    # parse string into pairs of word, count
+    # punctuations removed from consideration
+    # e.g. word and word... are treated as the same
+    words = re.findall(r"\b\w+\b", transcript.lower())
+    freq = Counter(words)
+    return [[word, count] for word, count in freq.items()]
 
 
 if __name__ == "__main__":
