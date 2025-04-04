@@ -6,7 +6,6 @@ This file contains the routes for the web application.
 import os
 import re
 from collections import Counter
-
 from datetime import datetime, timezone
 from mutagen.easyid3 import EasyID3
 from flask import Flask, render_template, request
@@ -132,6 +131,9 @@ def upload_entry(file_path, field_value_dict=None):
     Returns:
         bool: True if the entry was uploaded successfully, False otherwise.
     """
+    if not file_path:
+        return False
+
     if field_value_dict is None:
         field_value_dict = {}
 
@@ -161,6 +163,9 @@ def delete_entry(file_path):
     Deletes an entry from the MongoDB collection by file path.
     Returns True if successful, False if no entry was found or failed.
     """
+    if not file_path:
+        return False
+    
     try:
         result = collection.delete_one({"_id": file_path})
         return result.deleted_count > 0
