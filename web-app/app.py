@@ -113,7 +113,7 @@ def upload():
                 "title": title,
                 "speaker": speaker,
                 "date": date,
-                "context": description
+                "context": description,
             }
 
             # Save metadata using upload_entry function
@@ -126,7 +126,6 @@ def upload():
             return "Error during data processing", 500
 
     return "File uploaded successfully", 200
-
 
 
 def upload_entry(file_path, field_value_dict=None):
