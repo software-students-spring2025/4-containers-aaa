@@ -4,6 +4,7 @@ import os
 from datetime import datetime, timezone
 import pytest
 from werkzeug.datastructures import FileStorage
+from app import app, delete_entry, update_entry, upload_entry, search_entry
 
 
 @pytest.fixture
