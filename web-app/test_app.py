@@ -101,7 +101,7 @@ def test_upload_entry():
         "created_at": datetime.now(timezone.utc),
     }
     assert upload_entry(file_path, field_value_dict) is True, "Should upload entry successfully"
-    assert upload_entry(file_path, field_value_dict) is False, "Should fail to upload duplicate entry"
+    assert upload_entry(file_path, field_value_dict) is False, "Should fail duplicate entry"
     assert upload_entry("", {}) is False, "Should fail to upload with empty file path"
     assert upload_entry(None, None) is False, "Should fail to upload with None as file path"
 
@@ -110,7 +110,7 @@ def test_search_entry():
     """Test the search_entry function"""
     file_path = "uploads/test_audio.mp3"
     assert search_entry(file_path=file_path) is not False, "Should find the existing entry"
-    assert search_entry(file_path="uploads/nonexistent.mp3") is False, "Should return False for non-existent entry"
+    assert search_entry(file_path="uploads/nonexistent.mp3") is False, "Should False non-existent entry"
     assert search_entry() is not False, "Should return all entries when no criteria are provided"
     assert search_entry(title="Test") is not False, "Should find entries with partial title match"
 
@@ -120,7 +120,7 @@ def test_update_entry():
     file_path = "uploads/test_audio.mp3"
     update_fields = {"speaker": "Updated Speaker", "context": "Updated context"}
     assert update_entry(file_path, update_fields) is True, "Should update existing entry"
-    assert update_entry("uploads/nonexistent.mp3", {"speaker": "New Speaker"}) is False, "Should fail for non-existent entry"
+    assert update_entry("uploads/nonexistent.mp3", {"speaker": "New Speaker"}) is False, "Should fail non-existent entry"
     assert update_entry(file_path, {}) is False, "Should fail to update with empty fields"
 
 
@@ -128,6 +128,7 @@ def test_delete_entry():
     """Test the delete_entry function"""
     file_path = "uploads/test_audio.mp3"
     assert delete_entry(file_path) is True, "Should delete existing entry"
-    assert delete_entry("uploads/nonexistent.mp3") is False, "Should return False for non-existent entry"
+    assert delete_entry("uploads/nonexistent.mp3") is False, "Should False non-existent entry"
     assert delete_entry("") is False, "Should return False for empty file path"
     assert delete_entry(None) is False, "Should return False for None as file path"
+    

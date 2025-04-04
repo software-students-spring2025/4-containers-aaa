@@ -165,7 +165,7 @@ def delete_entry(file_path):
     """
     if not file_path:
         return False
-    
+
     try:
         result = collection.delete_one({"_id": file_path})
         return result.deleted_count > 0
