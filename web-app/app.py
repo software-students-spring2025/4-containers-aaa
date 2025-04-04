@@ -79,7 +79,7 @@ def upload():
     Raises:
         400: If no audio file is provided or if no file is selected
     """
-    # check if the audio file is provided
+    # Check if the audio file is provided
     if "audio" not in request.files:
         return "No audio file", 400
 
@@ -87,7 +87,7 @@ def upload():
     if file.filename == "":
         return "No selected file", 400
 
-    # save the file to the uploads folder in the root directory
+    # Save the file to the uploads folder in the root directory
     if file:
         try:
             # Generate unique filename
@@ -101,24 +101,32 @@ def upload():
             print("Error saving file:", e)
             return "Error saving file", 500
 
-        # get data from the form
+        # Get data from the form
         try:
-            title = request.form["title"]
-            speaker = request.form["speaker"]
-            date = request.form["date"]
-            description = request.form["description"]
-            print("Got data from page:", title, speaker, date, description)
+            title = request.form.get("title", "Untitled")
+            speaker = request.form.get("speaker", "Unknown")
+            date = request.form.get("date", "N/A")
+            description = request.form.get("description", "No description")
 
-            audio = EasyID3(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            audio["title"] = title
-            audio["artist"] = speaker
-            audio["date"] = date
-            audio.save()
-        except (OSError, IOError) as e:
-            print("Error saving metadata:", e)
-            return "Error saving metadata", 500
+            # Prepare metadata dictionary
+            metadata = {
+                "title": title,
+                "speaker": speaker,
+                "date": date,
+                "context": description
+            }
 
-    return "File uploaded successfully", 200
+            # Use the upload_entry function to upload the data to MongoDB
+            if upload_entry(filepath, metadata):
+                return "File uploaded successfully", 200
+            else:
+                return "Error uploading to database", 500
+
+        except Exception as e:
+            print("Error during metadata extraction:", e)
+            return "Error processing metadata", 500
+
+    return "Unexpected error", 500
 
 
 def upload_entry(file_path, field_value_dict=None):
