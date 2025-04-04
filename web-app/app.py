@@ -18,17 +18,20 @@ from bson.objectid import ObjectId
 # Load environment variables from .env file
 load_dotenv()
 
+
 # Connect to MongoDB
-mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME")
-mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
-mongo_port = os.getenv("MONGO_PORT", "27017")
-mongo_db_name = os.getenv("MONGO_DB_NAME", "voice_data")
 mongo_host = os.getenv("MONGO_HOST", "localhost")
+mongo_port = os.getenv("MONGO_PORT", "27017")
+mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME", "admin")
+mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD", "password")
+mongo_db_name = os.getenv("MONGO_DB_NAME", "voice_data")
+
 client = MongoClient(
     f"mongodb://{mongo_username}:{mongo_password}@{mongo_host}:{mongo_port}/"
 )
 db = client[mongo_db_name]
 collection = db["transcriptions"]
+
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = os.path.join("web-app", "static", "uploaded_audio")
