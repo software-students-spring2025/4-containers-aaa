@@ -3,8 +3,9 @@ name: CI
 on: [pull_request]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     services:
       mongo:
         image: mongo:latest
@@ -13,40 +14,50 @@ jobs:
         env:
           MONGO_INITDB_ROOT_USERNAME: admin
           MONGO_INITDB_ROOT_PASSWORD: password
+
     steps:
       - uses: actions/checkout@v3
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-          
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      # Install MongoDB client on the runner
+      - name: Install MongoDB client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mongodb-clients
+
+      # Wait for MongoDB to initialize
+      - name: Wait for MongoDB to start
+        run: sleep 20
+
+      # Test MongoDB connection
+      - name: Test MongoDB connection
+        run: |
+          mongo --host localhost --username admin --password password --eval "db.runCommand({ping: 1})"
+
+      # Install Python dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pipenv
           cd web-app
           pipenv install --deploy --system
-      
-      - name: Wait for MongoDB to be ready
-        run: sleep 20
-      
-      - name: Test connection to MongoDB
-        run: |
-          mongo --host mongo --eval "db.runCommand({ping: 1})"
-      
-      - name: Run Tests
+
+      # Run pytest
+      - name: Test with web-app using pytest
         env:
-          MONGO_HOST: mongo
+          MONGO_HOST: localhost
           MONGO_PORT: 27017
           MONGO_INITDB_ROOT_USERNAME: admin
           MONGO_INITDB_ROOT_PASSWORD: password
           MONGO_DB_NAME: voice_data
         run: |
           cd web-app
+          pipenv install pytest
           pipenv run pytest
-      
-      - name: Show MongoDB logs
-        if: failure()
-        run: docker logs $(docker ps -q --filter ancestor=mongo)
+
 
