@@ -5,18 +5,18 @@ on: [pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     services:
       mongo:
-        image: mongo:latest
+        image: mongo:5.0
         ports:
           - 27017:27017
         options: >-
-          --health-cmd="mongo --username admin --password password --eval 'db.runCommand({ping: 1})'"
+          --health-cmd="mongo --eval 'db.runCommand({ping: 1})'"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=10
         env:
           MONGO_INITDB_ROOT_USERNAME: admin
           MONGO_INITDB_ROOT_PASSWORD: password
@@ -38,11 +38,11 @@ jobs:
           pipenv install --deploy --system
 
       - name: Wait for MongoDB to start
-        run: sleep 10
+        run: sleep 20
 
       - name: Test connection to MongoDB
         run: |
-          docker exec $(docker ps -q --filter ancestor=mongo) mongo --username admin --password password --eval "db.runCommand({ping: 1})"
+          docker exec $(docker ps -q --filter ancestor=mongo) mongo --eval "db.runCommand({ping: 1})"
           
       - name: Test with web-app using pytest
         run: |
