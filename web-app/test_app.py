@@ -6,8 +6,8 @@ import io
 from unittest.mock import patch, MagicMock
 from werkzeug.datastructures import FileStorage
 import pytest
-from app import app, upload_entry, search_entry, update_entry, delete_entry
 from pymongo.errors import PyMongoError
+from app import app, upload_entry, search_entry, update_entry, delete_entry
 
 
 @pytest.fixture
