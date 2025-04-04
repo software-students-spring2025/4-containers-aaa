@@ -151,3 +151,6 @@ cython_debug/
 #rins's files
 files_to_ignore/
 rin_test.py
+
+files_to_ignor/
+kenny_test.py
