@@ -4,6 +4,9 @@ This file contains the routes for the web application.
 """
 
 import os
+import re
+from collections import Counter
+
 from datetime import datetime, timezone
 from mutagen.easyid3 import EasyID3
 from flask import Flask, render_template, request
@@ -11,8 +14,8 @@ from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
-from collections import Counter
-import re
+
+
 
 
 # Load environment variables from .env file
@@ -204,7 +207,9 @@ def update_entry(file_path, update_fields):
 
 
 def get_transcript(file_path):
-    # get transcript string from mongoDB by _id
+    """
+    get transcript from mongoDB by _id
+    """
     entry = collection.find_one({"_id": ObjectId(file_path)})
     transcript = entry["transcript"]
     if entry and "transcript" in entry:
@@ -214,6 +219,9 @@ def get_transcript(file_path):
 
 
 def parse_transcript(transcript):
+    """
+    parse transcript string into pairs of word, count
+    """
     # parse string into pairs of word, count
     # punctuations removed from consideration
     # e.g. word and word... are treated as the same
