@@ -109,32 +109,25 @@ def upload():
             description = request.form["description"]
             print("Got data from page:", title, speaker, date, description)
 
-            audio = EasyID3(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            audio["title"] = title
-            audio["artist"] = speaker
-            audio["date"] = date
-            audio.save()
-
-            # Prepare metadata for MongoDB
-            field_value_dict = {
+            # Prepare metadata dictionary
+            metadata = {
                 "title": title,
                 "speaker": speaker,
                 "date": date,
-                "description": description,
+                "context": description
             }
 
-            # Upload entry to MongoDB
-            if upload_entry(filepath, field_value_dict):
-                print("File uploaded successfully to database.")
-            else:
-                print("Failed to upload to database.")
-                return "Error saving to database", 500
+            # Save metadata using upload_entry function
+            if not upload_entry(filepath, metadata):
+                print("Error uploading entry to MongoDB")
+                return "Error saving metadata to database", 500
 
-        except (OSError, IOError) as e:
-            print("Error saving metadata:", e)
-            return "Error saving metadata", 500
+        except Exception as e:
+            print("Error during data processing:", e)
+            return "Error during data processing", 500
 
     return "File uploaded successfully", 200
+
 
 
 def upload_entry(file_path, field_value_dict=None):
