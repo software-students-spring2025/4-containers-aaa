@@ -4,24 +4,6 @@ import os
 from datetime import datetime, timezone
 import pytest
 from werkzeug.datastructures import FileStorage
-from pymongo import MongoClient
-from dotenv import load_dotenv
-from app import app, delete_entry, update_entry, upload_entry, search_entry
-
-# Load environment variables from .env file
-load_dotenv()
-
-# Connect to MongoDB
-mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME")
-mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
-mongo_port = os.getenv("MONGO_PORT", "27017")
-MONGO_DB_NAME = "voice_data_test"
-
-mongo_client = MongoClient(
-    f"mongodb://{mongo_username}:{mongo_password}@localhost:{mongo_port}/"
-)
-db = mongo_client[MONGO_DB_NAME]
-collection = db["transcriptions"]
 
 
 @pytest.fixture
