@@ -3,6 +3,9 @@
 import os
 import pytest
 from app import app
+from io import BytesIO
+from unittest.mock import patch
+from werkzeug.datastructures import FileStorage
 
 
 @pytest.fixture
@@ -44,3 +47,44 @@ def test_upload_empty_file():
     response = app.test_client().post("/upload", data=data)
     assert response.status_code == 400
     assert b"No selected file" in response.data
+
+
+def test_upload_provided_audio_file(test_client):
+    """Test upload route with a real audio file and metadata"""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # Corrected path: removed redundant 'web-app'
+    audio_path = os.path.join(
+        current_dir,
+        "testing_audio",
+        "Trump_Short_Speech.mp3",
+    )
+
+    # Verify the test audio file exists
+    assert os.path.exists(audio_path), f"Test audio file not found at {audio_path}"
+
+    with open(audio_path, "rb") as audio_file:
+        file_storage = FileStorage(
+            stream=BytesIO(audio_file.read()),
+            filename="Trump_Short_Speech.mp3",
+            content_type="audio/mpeg",
+        )
+        data = {
+            "audio": file_storage,
+            "title": "Test Title",
+            "speaker": "Trump",
+            "date": "2024-01-01",
+            "description": "Test Description",
+        }
+
+        with patch('app.upload_entry', return_value=True) as mock_upload_entry:
+            response = test_client.post(
+                "/upload",
+                data=data,
+                content_type="multipart/form-data",
+            )
+
+            assert response.status_code == 200
+            assert b"File uploaded successfully" in response.data
+            mock_upload_entry.assert_called_once()
+
+
