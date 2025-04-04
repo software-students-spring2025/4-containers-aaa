@@ -5,6 +5,37 @@ from datetime import datetime, timezone
 import pytest
 from werkzeug.datastructures import FileStorage
 from app import app, delete_entry, update_entry, upload_entry, search_entry
+from pymongo import MongoClient
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Connect to MongoDB
+mongo_host = os.getenv("MONGO_HOST", "localhost")
+mongo_port = int(os.getenv("MONGO_PORT", 27017))
+mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME", "admin")
+mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD", "password")
+mongo_db_name = os.getenv("MONGO_DB_NAME", "voice_data")
+
+client = MongoClient(
+    f"mongodb://{mongo_username}:{mongo_password}@{mongo_host}:{mongo_port}/"
+)
+db = client[mongo_db_name]
+collection = db["transcriptions"]
+
+@pytest.fixture
+def test_client():
+    """Create a test client for the app"""
+    app.config["TESTING"] = True
+    app.config["UPLOAD_FOLDER"] = "web-app/testing_audio"
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+    with app.test_client() as client:
+        yield client
+    # Cleanup after tests
+    for file in os.listdir(app.config["UPLOAD_FOLDER"]):
+        os.remove(os.path.join(app.config["UPLOAD_FOLDER"], file))
+    os.rmdir(app.config["UPLOAD_FOLDER"])
 
 
 @pytest.fixture
