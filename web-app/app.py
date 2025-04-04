@@ -109,6 +109,12 @@ def upload():
             description = request.form["description"]
             print("Got data from page:", title, speaker, date, description)
 
+            audio = EasyID3(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+            audio["title"] = title
+            audio["artist"] = speaker
+            audio["date"] = date
+            audio.save()
+
             # Prepare metadata for MongoDB
             field_value_dict = {
                 "title": title,
