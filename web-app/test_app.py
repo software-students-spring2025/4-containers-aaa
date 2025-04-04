@@ -8,6 +8,7 @@ from werkzeug.datastructures import FileStorage
 import pytest
 from app import app
 
+
 @pytest.fixture
 def test_client():
     """Create a test client for the app"""
