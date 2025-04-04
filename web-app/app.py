@@ -6,9 +6,7 @@ This file contains the routes for the web application.
 import os
 import re
 from collections import Counter
-
 from datetime import datetime, timezone
-from mutagen.easyid3 import EasyID3
 from flask import Flask, render_template, request
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
@@ -19,17 +17,20 @@ from bson.objectid import ObjectId
 # Load environment variables from .env file
 load_dotenv()
 
+
 # Connect to MongoDB
-mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME")
-mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
+mongo_host = os.getenv("MONGO_HOST", "localhost")
 mongo_port = os.getenv("MONGO_PORT", "27017")
+mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME", "admin")
+mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD", "password")
 mongo_db_name = os.getenv("MONGO_DB_NAME", "voice_data")
 
 client = MongoClient(
-    f"mongodb://{mongo_username}:{mongo_password}@localhost:{mongo_port}/"
+    f"mongodb://{mongo_username}:{mongo_password}@{mongo_host}:{mongo_port}/"
 )
 db = client[mongo_db_name]
 collection = db["transcriptions"]
+
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = os.path.join("web-app", "static", "uploaded_audio")
@@ -107,14 +108,22 @@ def upload():
             description = request.form["description"]
             print("Got data from page:", title, speaker, date, description)
 
-            audio = EasyID3(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            audio["title"] = title
-            audio["artist"] = speaker
-            audio["date"] = date
-            audio.save()
+            # Prepare metadata dictionary
+            metadata = {
+                "title": title,
+                "speaker": speaker,
+                "date": date,
+                "context": description,
+            }
+
+            # Save metadata using upload_entry function
+            if not upload_entry(filepath, metadata):
+                print("Error uploading entry to MongoDB")
+                return "Error saving metadata to database", 500
+
         except (OSError, IOError) as e:
-            print("Error saving metadata:", e)
-            return "Error saving metadata", 500
+            print("Error during data processing:", e)
+            return "Error during data processing", 500
 
     return "File uploaded successfully", 200
 
@@ -132,6 +141,9 @@ def upload_entry(file_path, field_value_dict=None):
     Returns:
         bool: True if the entry was uploaded successfully, False otherwise.
     """
+    if not file_path:
+        return False
+
     if field_value_dict is None:
         field_value_dict = {}
 
@@ -161,6 +173,9 @@ def delete_entry(file_path):
     Deletes an entry from the MongoDB collection by file path.
     Returns True if successful, False if no entry was found or failed.
     """
+    if not file_path:
+        return False
+
     try:
         result = collection.delete_one({"_id": file_path})
         return result.deleted_count > 0
