@@ -23,9 +23,9 @@ mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME")
 mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
 mongo_port = os.getenv("MONGO_PORT", "27017")
 mongo_db_name = os.getenv("MONGO_DB_NAME", "voice_data")
-
+mongo_host = os.getenv("MONGO_HOST", "localhost")
 client = MongoClient(
-    f"mongodb://{mongo_username}:{mongo_password}@localhost:{mongo_port}/"
+    f"mongodb://{mongo_username}:{mongo_password}@{mongo_host}:{mongo_port}/"
 )
 db = client[mongo_db_name]
 collection = db["transcriptions"]
