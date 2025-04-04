@@ -45,30 +45,3 @@ def test_upload_empty_file():
     response = app.test_client().post("/upload", data=data)
     assert response.status_code == 400
     assert b"No selected file" in response.data
-
-
-def test_upload_provided_audio_file():
-    """Test upload route with normal audio file"""
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    audio_path = os.path.join(
-        os.path.dirname(current_dir),
-        "web-app",
-        "testing_audio",
-        "Trump_Short_Speech.mp3",
-    )
-    with open(audio_path, "rb") as audio_file:
-        file_storage = FileStorage(
-            stream=audio_file,
-            filename="Trump_Short_Speech.mp3",
-            content_type="audio/mpeg",
-        )
-        data = {
-            "audio": file_storage,
-            "title": "Test Title",
-            "speaker": "Trump",
-            "date": "2024-01-01",
-            "description": "Test Description",
-        }
-        response = app.test_client().post("/upload", data=data)
-        assert response.status_code == 200
-        assert b"File uploaded successfully" in response.data

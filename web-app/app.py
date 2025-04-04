@@ -7,7 +7,6 @@ import os
 import re
 from collections import Counter
 from datetime import datetime, timezone
-from mutagen.easyid3 import EasyID3
 from flask import Flask, render_template, request
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
@@ -122,7 +121,7 @@ def upload():
                 print("Error uploading entry to MongoDB")
                 return "Error saving metadata to database", 500
 
-        except Exception as e:
+        except (OSError, IOError) as e:
             print("Error during data processing:", e)
             return "Error during data processing", 500
 
