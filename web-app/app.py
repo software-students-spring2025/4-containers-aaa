@@ -202,23 +202,23 @@ def update_entry(file_path, update_fields):
     except PyMongoError:
         return False
 
+
 def get_transcript(file_path):
     # get transcript string from mongoDB by _id
-        entry = collection.find_one(
-            {"_id": ObjectId(file_path)}
-        )
-        transcript = entry['transcript']
-        if entry and "transcript" in entry:
-            return transcript
+    entry = collection.find_one({"_id": ObjectId(file_path)})
+    transcript = entry["transcript"]
+    if entry and "transcript" in entry:
+        return transcript
 
 
 def parse_transcript(transcript):
     # parse string into pairs of word, count
-    # punctuations removed from consideration 
+    # punctuations removed from consideration
     # e.g. word and word... are treated as the same
-    words = re.findall(r'\b\w+\b', transcript.lower())
+    words = re.findall(r"\b\w+\b", transcript.lower())
     freq = Counter(words)
     return [[word, count] for word, count in freq.items()]
+
 
 if __name__ == "__main__":
     app.run(debug=True)
