@@ -31,7 +31,7 @@ client = MongoClient(
 db = client[mongo_db_name]
 collection = db["transcriptions"]
 
-#ML Settings
+# ML Settings
 ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://127.0.0.1:6000/get-transcripts")
 
 app = Flask(__name__)
@@ -109,7 +109,6 @@ def upload():
             date = request.form["date"]
             description = request.form["description"]
             print("Got data from page:", title, speaker, date, description)
-            
             # Prepare metadata dictionary
             metadata = {
                 "title": title,
@@ -149,16 +148,16 @@ def upload_entry(file_path, field_value_dict=None):
     if field_value_dict is None:
         field_value_dict = {}
 
-    #Try to send to ML for transcript
-    transcript=""
-    try:
-        transcript = trigger_ml(file_path)
-    except requests.exceptions.RequestException as e:
-        print("Error from ML",e)
+    # Try to send to ML for transcript
+    transcript = ""
+    # try:
+    #     transcript = trigger_ml(file_path)
+    # except requests.exceptions.RequestException as e:
+    #     print("Error from ML",e)
 
     word_count = 0
-    if len(transcript)!=0:
-        word_count=len(transcript)
+    if len(transcript) != 0:
+        word_count = len(transcript)
 
     # Create a new entry with default values or values from the dictionary
     new_entry = {
@@ -180,31 +179,36 @@ def upload_entry(file_path, field_value_dict=None):
     except PyMongoError:
         return False
 
+
 def trigger_ml(filepath):
+    """
+    Triggers machine learning client by sending a signal to ml client by Flask
+
+    Args:
+        filepath (str): The file path of the audio file.
+
+    Returns:
+        str: the transcript of the audio file if transcript was generated successfully, 
+        empty string otherwise.
+    """
     try:
         # Send the data to ML Client
         response = requests.post(
-            ML_CLIENT_URL,
-            json={"audio_file_path": filepath},
-            timeout=10
+            ML_CLIENT_URL, json={"audio_file_path": filepath}, timeout=10
         )
 
-        print(f"send to ml {filepath}")
-        
         if response.status_code != 200:
-            print("ML error")
-            return redirect(url_for('index')) 
-        
+            return redirect(url_for("index"))
+
         response_data = response.json()
         if response_data.get("transcript"):
-            print("got transcript")
-            print(response_data.get("transcript"))
             return response_data.get("transcript")
         else:
-            return "Failed to get transcript", 400
+            return ""
 
     except requests.exceptions.RequestException as e:
         print("Error from ML Client:", e)
+
 
 def delete_entry(file_path):
     """

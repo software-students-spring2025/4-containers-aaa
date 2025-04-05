@@ -9,7 +9,7 @@ from deepgram import (
     PrerecordedOptions,
     FileSource,
 )
-from pymongo import MongoClient, errors
+from pymongo import MongoClient
 
 
 # Load environment variables from .env file
@@ -52,11 +52,10 @@ def get_transcript(audio_file: str):
         return transcript
 
     except (OSError, IOError) as e:
-        return "File operation error: {e}"
+        return f"File operation error: {e}"
     except KeyError as e:
         return f"API response format error: {e}"
     except RuntimeError as e:
         return f"runtime error: {e}"
     except IndexError as e:
         return f"index error: {e}"
-
