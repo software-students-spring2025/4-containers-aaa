@@ -48,7 +48,13 @@ def index():
     Returns:
         str: The rendered HTML template for the index page.
     """
-    return render_template("index.html")
+    try:
+        entries = list(collection.find().sort("created at", -1))
+        return render_template("index.html", entries = entries)
+    except PyMongoError:
+        return "Database error", 500
+
+
 
 
 @app.route("/create")
