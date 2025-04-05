@@ -11,7 +11,6 @@ from flask import Flask, render_template, request
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
-from bson.objectid import ObjectId
 
 
 # Load environment variables from .env file
