@@ -188,7 +188,7 @@ def trigger_ml(filepath):
         filepath (str): The file path of the audio file.
 
     Returns:
-        str: the transcript of the audio file if transcript was generated successfully, 
+        str: the transcript of the audio file if transcript was generated successfully,
         empty string otherwise.
     """
     try:
