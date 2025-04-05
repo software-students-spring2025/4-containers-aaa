@@ -203,11 +203,9 @@ def trigger_ml(filepath):
         response_data = response.json()
         if response_data.get("transcript"):
             return response_data.get("transcript")
-        else:
-            return ""
 
-    except requests.exceptions.RequestException as e:
-        print("Error from ML Client:", e)
+    except requests.exceptions.RequestException:
+        return ""
 
 
 def delete_entry(file_path):
