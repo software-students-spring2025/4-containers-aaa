@@ -267,9 +267,4 @@ def trans_to_top_word(file_path):
     update_entry(file_path, {"top_words": ranked})
 
 if __name__ == "__main__":
-    #app.run(debug=True)
-    upload_entry("test2")
-    update_entry("test2", {"transcript": "a hello hello, bye bye bye,.... world World"})
-    print(get_entry("test2"))
-    trans_to_top_word("test2")
-    print(get_entry("test2"))
+    app.run(debug=True)
