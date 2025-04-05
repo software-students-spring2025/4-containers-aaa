@@ -203,7 +203,7 @@ def trigger_ml(filepath):
         response_data = response.json()
         if response_data.get("transcript"):
             return response_data.get("transcript")
-
+        return ""
     except requests.exceptions.RequestException:
         return ""
 
