@@ -24,17 +24,8 @@ mongo_db_name = os.getenv("MONGO_DB_NAME", "voice_data")
 client = MongoClient(
     f"mongodb://{mongo_username}:{mongo_password}@localhost:{mongo_port}/"
 )
-
-# client = MongoClient("mongodb://localhost:27017/?replicaSet=rs0")
 db = client[mongo_db_name]
 collection = db["transcriptions"]
-
-# Start the replica set mode
-try:
-    client.admin.command("replSetInitiate")
-    print("Replica set initiated.")
-except Exception as e:
-    print("Error:", e)
 
 
 def get_transcript(audio_file: str):
@@ -61,10 +52,11 @@ def get_transcript(audio_file: str):
         return transcript
 
     except (OSError, IOError) as e:
-        print(f"File operation error: {e}")
+        return "File operation error: {e}"
     except KeyError as e:
-        print(f"API response format error: {e}")
+        return f"API response format error: {e}"
     except RuntimeError as e:
-        print(f"runtime error: {e}")
+        return f"runtime error: {e}"
     except IndexError as e:
-        print(f"index error: {e}")
+        return f"index error: {e}"
+

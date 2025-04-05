@@ -9,6 +9,8 @@ black = "*"
 deepgram-sdk = "*"  
 python-dotenv = "*"
 pytest = "*"
+pymongo = "*"
+flask = "*"
 
 [dev-packages]
 pytest = "*"
