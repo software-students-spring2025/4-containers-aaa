@@ -29,7 +29,7 @@ client = MongoClient(
 db = client[mongo_db_name]
 collection = db["transcriptions"]
 
-#Start the replica set mode
+# Start the replica set mode
 try:
     client.admin.command("replSetInitiate")
     print("Replica set initiated.")
@@ -68,5 +68,3 @@ def get_transcript(audio_file: str):
         print(f"runtime error: {e}")
     except IndexError as e:
         print(f"index error: {e}")
-
-    
