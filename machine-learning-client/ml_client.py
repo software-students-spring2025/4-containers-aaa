@@ -9,8 +9,32 @@ from deepgram import (
     PrerecordedOptions,
     FileSource,
 )
+from pymongo import MongoClient, errors
 
+
+# Load environment variables from .env file
 load_dotenv()
+
+# Connect to MongoDB
+mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME")
+mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
+mongo_port = os.getenv("MONGO_PORT", "27017")
+mongo_db_name = os.getenv("MONGO_DB_NAME", "voice_data")
+
+client = MongoClient(
+    f"mongodb://{mongo_username}:{mongo_password}@localhost:{mongo_port}/"
+)
+
+# client = MongoClient("mongodb://localhost:27017/?replicaSet=rs0")
+db = client[mongo_db_name]
+collection = db["transcriptions"]
+
+#Start the replica set mode
+try:
+    client.admin.command("replSetInitiate")
+    print("Replica set initiated.")
+except Exception as e:
+    print("Error:", e)
 
 
 def get_transcript(audio_file: str):
@@ -34,7 +58,7 @@ def get_transcript(audio_file: str):
 
         response = deepgram.listen.rest.v("1").transcribe_file(payload, options)
         transcript = response.results.channels[0].alternatives[0].transcript
-        print(transcript)
+        return transcript
 
     except (OSError, IOError) as e:
         print(f"File operation error: {e}")
@@ -45,18 +69,4 @@ def get_transcript(audio_file: str):
     except IndexError as e:
         print(f"index error: {e}")
 
-
-def main():
-    """
-    This function is the main entry point for the program.
-    """
-    selected_audio_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "testing_audio",
-        "Trump_Short_Speech.mp3",
-    )
-    get_transcript(selected_audio_file)
-
-
-if __name__ == "__main__":
-    main()
+    
