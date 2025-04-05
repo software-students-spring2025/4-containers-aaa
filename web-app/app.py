@@ -7,10 +7,11 @@ import os
 import re
 from collections import Counter
 from datetime import datetime, timezone
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
+import requests
 
 
 # Load environment variables from .env file
@@ -30,6 +31,8 @@ client = MongoClient(
 db = client[mongo_db_name]
 collection = db["transcriptions"]
 
+# ML Settings
+ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://127.0.0.1:6000/get-transcripts")
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = os.path.join("web-app", "static", "uploaded_audio")
@@ -106,7 +109,6 @@ def upload():
             date = request.form["date"]
             description = request.form["description"]
             print("Got data from page:", title, speaker, date, description)
-
             # Prepare metadata dictionary
             metadata = {
                 "title": title,
@@ -146,6 +148,17 @@ def upload_entry(file_path, field_value_dict=None):
     if field_value_dict is None:
         field_value_dict = {}
 
+    # Try to send to ML for transcript
+    transcript = ""
+    # try:
+    #     transcript = trigger_ml(file_path)
+    # except requests.exceptions.RequestException as e:
+    #     print("Error from ML",e)
+
+    word_count = 0
+    if len(transcript) != 0:
+        word_count = len(transcript)
+
     # Create a new entry with default values or values from the dictionary
     new_entry = {
         "_id": file_path,
@@ -153,8 +166,8 @@ def upload_entry(file_path, field_value_dict=None):
         "speaker": field_value_dict.get("speaker", "Unknown"),
         "date": field_value_dict.get("date", "N/A"),
         "context": field_value_dict.get("context", "No context provided"),
-        "transcript": field_value_dict.get("transcript", ""),
-        "word_count": field_value_dict.get("word_count", 0),
+        "transcript": transcript,
+        "word_count": word_count,
         "top_words": field_value_dict.get("top_words", []),
         "audio_file": file_path,
         "created_at": datetime.now(timezone.utc),
@@ -165,6 +178,34 @@ def upload_entry(file_path, field_value_dict=None):
         return result.acknowledged
     except PyMongoError:
         return False
+
+
+def trigger_ml(filepath):
+    """
+    Triggers machine learning client by sending a signal to ml client by Flask
+
+    Args:
+        filepath (str): The file path of the audio file.
+
+    Returns:
+        str: the transcript of the audio file if transcript was generated successfully,
+        empty string otherwise.
+    """
+    try:
+        # Send the data to ML Client
+        response = requests.post(
+            ML_CLIENT_URL, json={"audio_file_path": filepath}, timeout=10
+        )
+
+        if response.status_code != 200:
+            return redirect(url_for("index"))
+
+        response_data = response.json()
+        if response_data.get("transcript"):
+            return response_data.get("transcript")
+        return ""
+    except requests.exceptions.RequestException:
+        return ""
 
 
 def delete_entry(file_path):
