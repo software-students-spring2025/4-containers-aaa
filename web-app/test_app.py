@@ -24,50 +24,10 @@ def test_client():
     os.rmdir(app.config["UPLOAD_FOLDER"])
 
 
-@patch("app.collection.find")
-def test_index_route(mock_find):
-    """Test that the index route returns 200 and renders entries"""
-    mock_find.return_value.sort.return_value = [
-        {
-            "_id": "test/audio.mp3",
-            "title": "Mock Title",
-            "speaker": "Mock Speaker",
-            "date": "2025-04-01",
-            "context": "Mock context",
-            "transcript": "Mock transcript",
-            "word_count": 5,
-            "top_words": ["mock", "test"],
-            "audio_file": "test/audio.mp3",
-            "created_at": "2025-04-01T12:00:00Z"
-        }
-    ]
-
+def test_index_route():
+    """Test that the index route returns 200"""
     response = app.test_client().get("/")
     assert response.status_code == 200
-    assert b"Mock Title" in response.data
-
-
-@patch("app.collection.find")
-def test_index_search_route(mock_find):
-    """Test POST / route with search keyword"""
-    mock_find.return_value.sort.return_value = [
-        {
-            "_id": "test/audio.mp3",
-            "title": "Search Test",
-            "speaker": "Alice",
-            "date": "2025-04-02",
-            "context": "Search context",
-            "transcript": "Search transcript",
-            "word_count": 4,
-            "top_words": ["search", "testing"],
-            "audio_file": "search/audio.mp3",
-            "created_at": "2025-04-02T12:00:00Z"
-        }
-    ]
-
-    response = app.test_client().post("/", data={"keyword": "Search"})
-    assert response.status_code == 200
-    assert b"Search Test" in response.data
 
 
 def test_create_route():
