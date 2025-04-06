@@ -38,7 +38,7 @@ def test_index_route():
                 "word_count": 6,
                 "top_words": ["test", "transcript"],
                 "audio_file": "test/audio.mp3",
-                "created_at": "2025-04-01T12:00:00Z"
+                "created_at": "2025-04-01T12:00:00Z",
             }
         ]
 
