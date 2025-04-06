@@ -29,7 +29,7 @@
                 </div>
                 <div class="entry-actions">
                     <a href="{{ url_for('view_entry', file_path=entry['_id']) }}" class="view-button">View</a>
-                    <form action="{{ url_for('delete', file_path=entry['_id']) }}" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this entry?');">
+                    <form action="{{ url_for('delete_route', file_path=entry['_id']) }}" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this entry?');">
                         <button type="submit" class="delete-button">Delete</button>
                     </form>
                 </div>
