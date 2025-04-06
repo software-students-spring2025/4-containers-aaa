@@ -44,13 +44,14 @@ os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    """
+    Main index route. Renders the list of entries.
+    Supports keyword search via POST.
+    """
     keyword = ""
     try:
-        # If form is submitted
         if request.method == "POST":
             keyword = request.form.get("keyword", "").strip()
-
-            # Build case-insensitive regex query on title, speaker, or date
             query = {
                 "$or": [
                     {"title": {"$regex": keyword, "$options": "i"}},
@@ -62,26 +63,33 @@ def index():
         else:
             entries = list(collection.find().sort("created_at", -1))
 
-        # pass `keyword` to the template
         return render_template("index.html", entries=entries, keyword=keyword)
 
-    except Exception as e:
+    except PyMongoError as e:
         print("Search error:", e)
         return "Internal Server Error", 500
-    
+
+
 @app.route("/entry/<path:file_path>")
 def view_entry(file_path):
+    """
+    Renders a detail page for a specific entry using its file path (_id).
+    """
     try:
         entry = collection.find_one({"_id": file_path})
         return render_template("detail.html", entry=entry)
     except PyMongoError:
         return "Database error", 500
-    
+
+
 @app.route("/delete/<path:file_path>", methods=["POST"])
-def delete(file_path):
+def delete_route(file_path):
+    """
+    Deletes an entry from MongoDB using its file path (_id).
+    """
     if delete_entry(file_path):
         return redirect(url_for("index"))
-    else: return "Delete failed", 500
+    return "Delete failed", 500
 
 
 @app.route("/create")
