@@ -26,8 +26,25 @@ def test_client():
 
 def test_index_route():
     """Test that the index route returns 200"""
-    response = app.test_client().get("/")
-    assert response.status_code == 200
+    with patch("app.collection.find") as mock_find:
+        mock_find.return_value.sort.return_value = [
+            {
+                "_id": "test/audio.mp3",
+                "title": "Test Entry",
+                "speaker": "Test Speaker",
+                "date": "2025-04-01",
+                "context": "Test context",
+                "transcript": "This is a test transcript",
+                "word_count": 6,
+                "top_words": ["test", "transcript"],
+                "audio_file": "test/audio.mp3",
+                "created_at": "2025-04-01T12:00:00Z"
+            }
+        ]
+
+        response = app.test_client().get("/")
+        assert response.status_code == 200
+        assert b"Test Entry" in response.data
 
 
 def test_create_route():
