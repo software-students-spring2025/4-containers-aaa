@@ -9,7 +9,13 @@
 <body>
     <div class="container">
         <h1>Audio Collection</h1>
-        <p>home page</p>
+        <form method="POST" action="/" class="search-form">
+            <input type="text" name="keyword" placeholder="Search title, speaker, or date..." autocomplete="off">
+            <button type="submit">Search</button>
+            {% if keyword %}
+            <a href="/" class="clear-button">Clear</a>
+            {% endif %}
+        </form>
         <a href="{{ url_for('create') }}" class="add-button">+</a>
 
         {% if entries %}
@@ -23,7 +29,7 @@
                 </div>
                 <div class="entry-actions">
                     <a href="{{ url_for('view_entry', file_path=entry['_id']) }}" class="view-button">View</a>
-                    <form action="{{ url_for('delete_route', file_path=entry['_id']) }}" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this entry?');">
+                    <form action="{{ url_for('delete', file_path=entry['_id']) }}" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this entry?');">
                         <button type="submit" class="delete-button">Delete</button>
                     </form>
                 </div>
@@ -31,7 +37,7 @@
             {% endfor %}
         </ul> 
         {% else %}
-            <p>No entries found.</p>
+            <p class= "no-entry" >No entries found.</p>
         {% endif %} 
     </div>
 </body>
