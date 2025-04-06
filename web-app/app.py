@@ -42,15 +42,54 @@ app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50MB max file size
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def index():
     """
-    Renders the home page of the application.
-
-    Returns:
-        str: The rendered HTML template for the index page.
+    Main index route. Renders the list of entries.
+    Supports keyword search via POST.
     """
-    return render_template("index.html")
+    keyword = ""
+    try:
+        if request.method == "POST":
+            keyword = request.form.get("keyword", "").strip()
+            query = {
+                "$or": [
+                    {"title": {"$regex": keyword, "$options": "i"}},
+                    {"speaker": {"$regex": keyword, "$options": "i"}},
+                    {"date": {"$regex": keyword, "$options": "i"}},
+                ]
+            }
+            entries = list(collection.find(query).sort("created_at", -1))
+        else:
+            entries = list(collection.find().sort("created_at", -1))
+
+        return render_template("index.html", entries=entries, keyword=keyword)
+
+    except PyMongoError as e:
+        print("Search error:", e)
+        return "Internal Server Error", 500
+
+
+@app.route("/entry/<path:file_path>")
+def view_entry(file_path):
+    """
+    Renders a detail page for a specific entry using its file path (_id).
+    """
+    try:
+        entry = collection.find_one({"_id": file_path})
+        return render_template("detail.html", entry=entry)
+    except PyMongoError:
+        return "Database error", 500
+
+
+@app.route("/delete/<path:file_path>", methods=["POST"])
+def delete_route(file_path):
+    """
+    Deletes an entry from MongoDB using its file path (_id).
+    """
+    if delete_entry(file_path):
+        return redirect(url_for("index"))
+    return "Delete failed", 500
 
 
 @app.route("/create")
