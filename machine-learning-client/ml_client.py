@@ -14,9 +14,16 @@ from deepgram import (
 # Load environment variables from .env file
 load_dotenv()
 
+
 def get_transcript(audio_file: str):
     """
     This function transcribes an audio file using the Deepgram API.
+
+    Args:
+        audio_file (str): The path to the audio file to transcribe.
+
+    Returns:
+        str: The transcript of the audio file.
     """
     try:
         deepgram = DeepgramClient(api_key=os.getenv("DEEPGRAM_API_KEY"))

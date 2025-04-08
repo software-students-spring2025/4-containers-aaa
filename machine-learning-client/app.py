@@ -35,7 +35,10 @@ app = Flask(__name__)
 @app.route("/get-transcripts", methods=["POST"])
 def process_transcript_api():
     """
-    API to get transcript from deepgram
+    Receive audio file path from frontend, get transcript from deepgram and update database
+
+    Returns:
+        json: message and transcript
     """
     data = request.get_json()
     voice_data_rel_file_path = data.get("audio_file_path")
