@@ -8,13 +8,16 @@ from flask import Flask, request, jsonify
 from ml_client import get_transcript
 
 from pymongo import MongoClient
+from pymongo.errors import PyMongoError, ConnectionFailure, OperationFailure
 
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Connect to MongoDB
-mongo_host = os.getenv("MONGO_HOST", "mongodb")  # Use the service name from docker-compose
+mongo_host = os.getenv(
+    "MONGO_HOST", "mongodb"
+)  # Use the service name from docker-compose
 mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME")
 mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
 mongo_port = os.getenv("MONGO_PORT", "27017")
@@ -45,28 +48,28 @@ def process_transcript_api():
 
     # Extract just the filename from the path
     filename = os.path.basename(voice_data_rel_file_path)
-    
+
     # Use the shared volume path
     file_path = os.path.join("/app/uploaded_audio", filename)
     print(f"Looking for file at: {file_path}")
-    
+
     # Check if file exists
     if not os.path.exists(file_path):
         print(f"File not found at: {file_path}")
         return jsonify({"message": f"File not found: {file_path}"}), 404
-    
+
     # Get transcript
     result = get_transcript(file_path)
     print(f"Transcript result: {result[:100]}...")  # Print first 100 chars
-    
+
     # Update database
     try:
         # Find the entry by audio_file field
         entry = collection.find_one({"audio_file": voice_data_rel_file_path})
         if entry:
             collection.update_one(
-                {"audio_file": voice_data_rel_file_path}, 
-                {"$set": {"transcript": result}}
+                {"audio_file": voice_data_rel_file_path},
+                {"$set": {"transcript": result}},
             )
             print(f"Updated transcript for file: {voice_data_rel_file_path}")
         else:
@@ -75,15 +78,22 @@ def process_transcript_api():
             entry = collection.find_one({"_id": voice_data_rel_file_path})
             if entry:
                 collection.update_one(
-                    {"_id": voice_data_rel_file_path}, 
-                    {"$set": {"transcript": result}}
+                    {"_id": voice_data_rel_file_path}, {"$set": {"transcript": result}}
                 )
-                print(f"Updated transcript for file (by _id): {voice_data_rel_file_path}")
+                print(
+                    f"Updated transcript for file (by _id): {voice_data_rel_file_path}"
+                )
             else:
                 print(f"Entry not found by _id either: {voice_data_rel_file_path}")
-    except Exception as e:
-        print(f"Database error: {e}")
-        return jsonify({"message": f"Database error: {e}"}), 500
+    except ConnectionFailure as e:
+        print(f"MongoDB connection error: {e}")
+        return jsonify({"message": "Database connection error"}), 503
+    except OperationFailure as e:
+        print(f"MongoDB operation error: {e}")
+        return jsonify({"message": "Database operation failed"}), 500
+    except PyMongoError as e:
+        print(f"Other MongoDB error: {e}")
+        return jsonify({"message": "Database error occurred"}), 500
 
     return jsonify({"message": "Transcript updated", "transcript": result}), 200
 

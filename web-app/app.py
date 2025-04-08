@@ -19,7 +19,9 @@ load_dotenv()
 
 
 # Connect to MongoDB
-mongo_host = os.getenv("MONGO_HOST", "mongodb")  # Use the service name from docker-compose
+mongo_host = os.getenv(
+    "MONGO_HOST", "mongodb"
+)  # Use the service name from docker-compose
 mongo_port = os.getenv("MONGO_PORT", "27017")
 mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME", "admin")
 mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD", "password")
@@ -160,7 +162,7 @@ def upload():
             if not upload_entry(filepath, metadata):
                 print("Error uploading entry to MongoDB")
                 return "Error saving metadata to database", 500
-            
+
             # Try to send to ML for transcript
             try:
                 print(f"Sending file to ML client: {filepath}")
@@ -193,7 +195,6 @@ def upload_entry(file_path, field_value_dict=None):
 
     if field_value_dict is None:
         field_value_dict = {}
-
 
     # Create a new entry with default values or values from the dictionary
     new_entry = {
