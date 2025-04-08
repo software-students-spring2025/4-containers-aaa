@@ -53,8 +53,6 @@ async def _get_transcript_async(audio_file: str):
         return f"runtime error: {e}"
     except IndexError as e:
         return f"index error: {e}"
-    except Exception as e:
-        return f"Error: {e}"
 
 
 def get_transcript(audio_file: str):

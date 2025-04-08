@@ -19,9 +19,7 @@ load_dotenv()
 
 
 # Connect to MongoDB
-mongo_host = os.getenv(
-    "MONGO_HOST", "mongodb"
-) 
+mongo_host = os.getenv("MONGO_HOST", "mongodb")
 mongo_port = os.getenv("MONGO_PORT", "27017")
 mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME", "admin")
 mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD", "password")
