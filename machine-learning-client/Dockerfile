@@ -12,8 +12,6 @@ COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-# Uninstall any existing deepgram-sdk and install the specific version
-RUN pip uninstall -y deepgram-sdk && pip install --no-cache-dir deepgram-sdk==2.1.0
 
 # Copy application code
 COPY . .
