@@ -3,7 +3,6 @@ This program is used to transcribe audio files using the Deepgram API.
 """
 
 import os
-import asyncio
 from dotenv import load_dotenv
 from deepgram import (
     DeepgramClient,
@@ -16,7 +15,7 @@ from deepgram import (
 load_dotenv()
 
 
-async def _get_transcript_async(audio_file: str):
+def get_transcript(audio_file: str):
     """
     Async function to transcribe an audio file using the Deepgram API.
 
@@ -41,7 +40,7 @@ async def _get_transcript_async(audio_file: str):
             smart_format=True,
         )
 
-        response = await deepgram.listen.rest.v("1").transcribe_file(payload, options)
+        response = deepgram.listen.rest.v("1").transcribe_file(payload, options)
         transcript = response.results.channels[0].alternatives[0].transcript
         return transcript
 
@@ -55,14 +54,10 @@ async def _get_transcript_async(audio_file: str):
         return f"index error: {e}"
 
 
-def get_transcript(audio_file: str):
-    """
-    Synchronous wrapper for the async transcription function.
+# def main():
+#     audio_file = "testing_audio/Trump_Short_Speech.mp3"
+#     transcript = _get_transcript(audio_file)
+#     print(transcript)
 
-    Args:
-        audio_file (str): The path to the audio file to transcribe.
-
-    Returns:
-        str: The transcript of the audio file.
-    """
-    return asyncio.run(_get_transcript_async(audio_file))
+# if __name__ == "__main__":
+#     main()
