@@ -9,28 +9,21 @@ from deepgram import (
     PrerecordedOptions,
     FileSource,
 )
-from pymongo import MongoClient
 
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Connect to MongoDB
-mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME")
-mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
-mongo_port = os.getenv("MONGO_PORT", "27017")
-mongo_db_name = os.getenv("MONGO_DB_NAME", "voice_data")
-
-client = MongoClient(
-    f"mongodb://{mongo_username}:{mongo_password}@localhost:{mongo_port}/"
-)
-db = client[mongo_db_name]
-collection = db["transcriptions"]
-
 
 def get_transcript(audio_file: str):
     """
     This function transcribes an audio file using the Deepgram API.
+
+    Args:
+        audio_file (str): The path to the audio file to transcribe.
+
+    Returns:
+        str: The transcript of the audio file.
     """
     try:
         deepgram = DeepgramClient(api_key=os.getenv("DEEPGRAM_API_KEY"))
