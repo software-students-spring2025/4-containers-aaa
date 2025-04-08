@@ -5,8 +5,9 @@ Flask application for ml client to receive signals from frontend
 import os
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
-from ml_client import get_transcript
 from pymongo import MongoClient
+from pymongo.errors import PyMongoError, ConnectionFailure, OperationFailure
+from ml_client import get_transcript
 
 
 # Load environment variables from .env file
