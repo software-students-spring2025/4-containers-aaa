@@ -52,7 +52,8 @@ def get_transcript(audio_file: str):
         return f"runtime error: {e}"
     except IndexError as e:
         return f"index error: {e}"
-    
+
+
 # def main():
 #     audio_file = "testing_audio/Trump_Short_Speech.mp3"
 #     transcript = _get_transcript(audio_file)
@@ -60,4 +61,3 @@ def get_transcript(audio_file: str):
 
 # if __name__ == "__main__":
 #     main()
-
