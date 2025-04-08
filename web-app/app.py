@@ -19,7 +19,7 @@ load_dotenv()
 
 
 # Connect to MongoDB
-mongo_host = os.getenv("MONGO_HOST", "localhost")
+mongo_host = os.getenv("MONGO_HOST", "mongodb")  # Use the service name from docker-compose
 mongo_port = os.getenv("MONGO_PORT", "27017")
 mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME", "admin")
 mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD", "password")
@@ -32,10 +32,10 @@ db = client[mongo_db_name]
 collection = db["transcriptions"]
 
 # ML Settings
-ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://127.0.0.1:6000/get-transcripts")
+ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://ml-client:6000/get-transcripts")
 
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = os.path.join("web-app", "static", "uploaded_audio")
+app.config["UPLOAD_FOLDER"] = os.path.join("static", "uploaded_audio")
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50MB max file size
 
 # Ensure upload directory exists
@@ -160,6 +160,13 @@ def upload():
             if not upload_entry(filepath, metadata):
                 print("Error uploading entry to MongoDB")
                 return "Error saving metadata to database", 500
+            
+            # Try to send to ML for transcript
+            try:
+                print(f"Sending file to ML client: {filepath}")
+                trigger_ml(filepath)
+            except requests.exceptions.RequestException as e:
+                print("Error from ML", e)
 
         except (OSError, IOError) as e:
             print("Error during data processing:", e)
@@ -187,16 +194,6 @@ def upload_entry(file_path, field_value_dict=None):
     if field_value_dict is None:
         field_value_dict = {}
 
-    # Try to send to ML for transcript
-    transcript = ""
-    # try:
-    #     transcript = trigger_ml(file_path)
-    # except requests.exceptions.RequestException as e:
-    #     print("Error from ML",e)
-
-    word_count = 0
-    if len(transcript) != 0:
-        word_count = len(transcript)
 
     # Create a new entry with default values or values from the dictionary
     new_entry = {
@@ -205,8 +202,8 @@ def upload_entry(file_path, field_value_dict=None):
         "speaker": field_value_dict.get("speaker", "Unknown"),
         "date": field_value_dict.get("date", "N/A"),
         "context": field_value_dict.get("context", "No context provided"),
-        "transcript": transcript,
-        "word_count": word_count,
+        "transcript": field_value_dict.get("transcript", ""),
+        "word_count": field_value_dict.get("word_count", 0),
         "top_words": field_value_dict.get("top_words", []),
         "audio_file": file_path,
         "created_at": datetime.now(timezone.utc),
@@ -232,18 +229,23 @@ def trigger_ml(filepath):
     """
     try:
         # Send the data to ML Client
+        print(f"Sending request to ML client at {ML_CLIENT_URL} with file: {filepath}")
         response = requests.post(
             ML_CLIENT_URL, json={"audio_file_path": filepath}, timeout=10
         )
 
         if response.status_code != 200:
+            print(f"ML client returned status code: {response.status_code}")
+            print(f"Response content: {response.text}")
             return redirect(url_for("index"))
 
         response_data = response.json()
+        print(f"ML client response: {response_data}")
         if response_data.get("transcript"):
             return response_data.get("transcript")
         return ""
-    except requests.exceptions.RequestException:
+    except requests.exceptions.RequestException as e:
+        print(f"Request exception: {e}")
         return ""
 
 
@@ -350,4 +352,4 @@ def trans_to_top_word(file_path):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

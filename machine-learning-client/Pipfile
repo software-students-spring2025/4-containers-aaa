@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
-deepgram-sdk = "*"  
+deepgram-sdk = "==2.1.0"  
 python-dotenv = "*"
 pytest = "*"
 pymongo = "*"
