@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ entry.title }} - Details</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <div class="container">
+  <div class="second-container">
     <h1>{{ entry.title }}</h1>
 
     <p><strong>Speaker:</strong> {{ entry.speaker }}</p>
     <p><strong>Date:</strong> {{ entry.date }}</p>
-    <p><strong>Context:</strong> {{ entry.context }}</p>
+    <p><strong>Description:</strong> {{ entry.context }}</p>
 
-    <p><strong>Transcript:</strong></p>
+    <p class="second-p"><strong>Transcript:</strong></p2>
     <pre class="transcript-box">{{ entry.transcript }}</pre>
 
     <p><strong>Word Count:</strong> {{ entry.word_count }}</p>
@@ -34,7 +35,9 @@
       </audio>
     {% endif %}
 
-    <div style="margin-top: 2rem;">
+    <a href="{{ url_for('edit_entry', file_path=entry._id) }}">✏️ Edit Entry</a>
+
+    <div>
       <a href="{{ url_for('index') }}" class="cancel-button">← Back to List</a>
     </div>
   </div>
