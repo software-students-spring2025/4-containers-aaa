@@ -56,8 +56,7 @@ def get_transcript(audio_file: str):
 
 # def main():
 #     audio_file = "testing_audio/Trump_Short_Speech.mp3"
-#     transcript = _get_transcript(audio_file)
+#     transcript = get_transcript(audio_file)
 #     print(transcript)
-
 # if __name__ == "__main__":
 #     main()
