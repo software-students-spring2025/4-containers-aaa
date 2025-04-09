@@ -82,7 +82,7 @@ def process_transcript_api():
                 {
                     "$set": {
                         "transcript": transcript,
-                        "word_count": word_count(transcript),
+                        "word_count": word_count,
                         "top_words": top_words,
                     }
                 },
