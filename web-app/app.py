@@ -233,19 +233,15 @@ def trigger_ml(filepath):
             ML_CLIENT_URL, json={"audio_file_path": filepath}, timeout=10
         )
 
-        if response.status_code != 200:
-            print(f"ML client returned status code: {response.status_code}")
-            print(f"Response content: {response.text}")
-            return redirect(url_for("index"))
-
         response_data = response.json()
         print(f"ML client response: {response_data}")
-        if response_data.get("transcript"):
-            return response_data.get("transcript")
-        return ""
-    except requests.exceptions.RequestException as e:
-        print(f"Request exception: {e}")
-        return ""
+        return (response_data)
+    except requests.exceptions.RequestException:
+        return "Request exception"
+    except ConnectionError:
+        return "Connection error"
+    except TimeoutError:
+        return "Timeout error"
 
 
 def delete_entry(file_path):

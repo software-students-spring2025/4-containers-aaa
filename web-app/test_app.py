@@ -6,8 +6,9 @@ import io
 from unittest.mock import patch, MagicMock
 from werkzeug.datastructures import FileStorage
 import pytest
+import requests
 from pymongo.errors import PyMongoError
-from app import app, upload_entry, search_entry, update_entry, delete_entry
+from app import app, upload_entry, search_entry, update_entry, delete_entry, trigger_ml
 
 
 @pytest.fixture
@@ -182,3 +183,64 @@ def test_update_entry(mock_update):
     # Update error
     mock_update.side_effect = PyMongoError()
     assert not update_entry("test/audio.mp3", {"title": "Error"})
+
+
+@patch('requests.post')
+def test_trigger_ml_success(mock_post):
+    """Test trigger_ml function with successful response"""
+    # Mock successful response
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    expected_data = {
+        "transcript": "test transcript",
+        "message": "success"
+    }
+    mock_response.json.return_value = expected_data
+    mock_post.return_value = mock_response
+
+    # Test successful case
+    result = trigger_ml("test/audio.mp3")
+    assert result == expected_data
+    mock_post.assert_called_once_with(
+        "http://ml-client:6000/get-transcripts",
+        json={"audio_file_path": "test/audio.mp3"},
+        timeout=10
+    )
+
+@patch('requests.post')
+def test_trigger_ml_request_exception(mock_post):
+    """Test trigger_ml function with request exception"""
+    # Mock request exception
+    mock_post.side_effect = requests.exceptions.RequestException("Connection failed")
+    result = trigger_ml("test/audio.mp3")
+    assert result == "Request exception"
+
+@patch('requests.post')
+def test_trigger_ml_connection_error(mock_post):
+    """Test trigger_ml function with connection error"""
+    # Mock connection error
+    mock_post.side_effect = ConnectionError("Connection failed")
+    result = trigger_ml("test/audio.mp3")
+    assert result == "Connection error"
+
+@patch('requests.post')
+def test_trigger_ml_json_response(mock_post):
+    """Test trigger_ml function with different JSON responses"""
+    test_cases = [
+        # Empty response
+        {},
+        # Response with only message
+        {"message": "processing complete"},
+        # Response with transcript and other fields
+        {"transcript": "hello world", "confidence": 0.95},
+        # Response with multiple fields
+        {"transcript": "test", "message": "success", "duration": 1.5}
+    ]
+    for test_data in test_cases:
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = test_data
+        mock_post.return_value = mock_response
+
+        result = trigger_ml("test/audio.mp3")
+        assert result == test_data, f"Failed for test data: {test_data}"
