@@ -4,8 +4,6 @@ This file contains the routes for the web application.
 """
 
 import os
-import re
-from collections import Counter
 from datetime import datetime, timezone
 from flask import Flask, render_template, request, redirect, url_for
 from pymongo import MongoClient
@@ -304,46 +302,6 @@ def get_transcript(file_path):
     if entry and "transcript" in entry:
         return transcript
     return ""
-
-
-def parse_transcript(transcript):
-    """
-    parse transcript string into pairs of word, count
-    """
-    # parse string into pairs of word, count
-    # punctuations removed from consideration
-    # e.g. word and word... are treated as the same
-    words = re.findall(r"\b\w+\b", transcript.lower())
-    freq = Counter(words)
-    return [[word, count] for word, count in freq.items()]
-
-
-def rank_by_freq_desc(pairs):
-    """
-    rank words by frequency descending
-    """
-    return sorted(pairs, key=lambda x: x[1], reverse=True)
-
-
-def get_entry(file_path):
-    """
-    get entry from mongoDB
-    """
-    entry = collection.find_one({"_id": file_path})
-    return entry
-
-
-def trans_to_top_word(file_path):
-    """
-    1. get_transcript(file_path)
-    2. parse_transcript(transcript)
-    3. rank_by_freq_desc(pairs)
-    4. update_entry()
-    """
-    transcript = get_transcript(file_path)
-    parsed = parse_transcript(transcript)
-    ranked = rank_by_freq_desc(parsed)
-    update_entry(file_path, {"top_words": ranked})
 
 
 if __name__ == "__main__":

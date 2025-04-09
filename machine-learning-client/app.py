@@ -3,6 +3,8 @@ Flask application for ml client to receive signals from frontend
 """
 
 import os
+import re
+from collections import Counter
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
@@ -61,8 +63,14 @@ def process_transcript_api():
         return jsonify({"message": f"File not found: {file_path}"}), 404
 
     # Get transcript
-    result = get_transcript(file_path)
-    print(f"Transcript result: {result[:100]}...")  # Print first 100 chars
+    transcript = get_transcript(file_path)
+    print(f"Transcript result: {transcript[:100]}...")  # Print first 100 chars
+
+    # Get top words
+    top_words = trans_to_top_word(transcript)
+
+    # Get word count
+    word_count = get_word_count(transcript)
 
     # Update database
     try:
@@ -71,22 +79,17 @@ def process_transcript_api():
         if entry:
             collection.update_one(
                 {"audio_file": voice_data_rel_file_path},
-                {"$set": {"transcript": result}},
+                {
+                    "$set": {
+                        "transcript": transcript,
+                        "word_count": word_count(transcript),
+                        "top_words": top_words,
+                    }
+                },
             )
             print(f"Updated transcript for file: {voice_data_rel_file_path}")
         else:
             print(f"Entry not found for file: {voice_data_rel_file_path}")
-            # Try finding by _id
-            entry = collection.find_one({"_id": voice_data_rel_file_path})
-            if entry:
-                collection.update_one(
-                    {"_id": voice_data_rel_file_path}, {"$set": {"transcript": result}}
-                )
-                print(
-                    f"Updated transcript for file (by _id): {voice_data_rel_file_path}"
-                )
-            else:
-                print(f"Entry not found by _id either: {voice_data_rel_file_path}")
     except ConnectionFailure as e:
         print(f"MongoDB connection error: {e}")
         return jsonify({"message": "Database connection error"}), 503
@@ -97,7 +100,52 @@ def process_transcript_api():
         print(f"Other MongoDB error: {e}")
         return jsonify({"message": "Database error occurred"}), 500
 
-    return jsonify({"message": "Transcript updated", "transcript": result}), 200
+    return jsonify({"message": "Transcript updated", "transcript": transcript}), 200
+
+
+def parse_transcript(transcript):
+    """
+    parse transcript string into pairs of word, count
+    """
+    # parse string into pairs of word, count
+    # punctuations removed from consideration
+    # e.g. word and word... are treated as the same
+    words = re.findall(r"\b\w+\b", transcript.lower())
+    freq = Counter(words)
+    return [[word, count] for word, count in freq.items()]
+
+
+def get_word_count(transcript):
+    """
+    count words in transcript
+    """
+    words = re.findall(r"\b\w+\b", transcript.lower())
+    return len(words)
+
+
+def rank_by_freq_desc(pairs):
+    """
+    rank words by frequency descending
+    """
+    return sorted(pairs, key=lambda x: x[1], reverse=True)
+
+
+def get_entry(file_path):
+    """
+    get entry from mongoDB
+    """
+    entry = collection.find_one({"audio_file": file_path})
+    return entry
+
+
+def trans_to_top_word(transcript):
+    """
+    1. parse_transcript(transcript)
+    2. rank_by_freq_desc(pairs)
+    """
+    parsed = parse_transcript(transcript)
+    ranked = rank_by_freq_desc(parsed)
+    return ranked
 
 
 if __name__ == "__main__":
