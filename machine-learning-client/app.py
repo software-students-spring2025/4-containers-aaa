@@ -3,9 +3,9 @@ Flask application for ml client to receive signals from frontend
 """
 
 import os
-import re
 from collections import Counter
 from dotenv import load_dotenv
+import string
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError, ConnectionFailure, OperationFailure
@@ -103,23 +103,15 @@ def process_transcript_api():
     return jsonify({"message": "Transcript updated", "transcript": transcript}), 200
 
 
-def parse_transcript(transcript):
-    """
-    parse transcript string into pairs of word, count
-    """
-    # parse string into pairs of word, count
-    # punctuations removed from consideration
-    # e.g. word and word... are treated as the same
-    words = re.findall(r"\b\w+\b", transcript.lower())
-    freq = Counter(words)
-    return [[word, count] for word, count in freq.items()]
-
-
 def get_word_count(transcript):
     """
     count words in transcript
     """
-    words = re.findall(r"\b\w+\b", transcript.lower())
+    if not transcript:
+        return 0
+    if not isinstance(transcript, str):
+        return 0
+    words = transcript.lower().split()
     return len(words)
 
 
@@ -127,23 +119,60 @@ def rank_by_freq_desc(pairs):
     """
     rank words by frequency descending
     """
+    if not pairs:
+        return []
+    if not isinstance(pairs, list):
+        return []
+    if len(pairs) == 0:
+        return []
+    if pairs[0] == []:
+        return []
+    else:
+        if not all(isinstance(item, list) for item in pairs):
+            return []
+        if not all (len(item) == 2 for item in pairs):
+            return []
+        if not all(isinstance(item[0], str) for item in pairs):
+            return []
+        if not all(isinstance(item[1], int) for item in pairs):
+            return []
+        
     return sorted(pairs, key=lambda x: x[1], reverse=True)
 
 
-def get_entry(file_path):
+def count_word_frequency(transcript):
     """
-    get entry from mongoDB
+    Parse words using spaces and count their frequency, excluding punctuation.
+    
+    Args:
+        transcript (str): The transcript text to analyze
+        
+    Returns:
+        list: A list of [word, count] pairs sorted by frequency (descending)
     """
-    entry = collection.find_one({"audio_file": file_path})
-    return entry
+    if not transcript:
+        return []
+    if not isinstance(transcript, str):
+        return []
+    
+    words = transcript.lower().split()
+    words = [word.strip(string.punctuation) for word in words]
+    words = [word for word in words if word]
+    freq = Counter(words)
+    
+    return [[word, count] for word, count in freq.items()]
 
 
 def trans_to_top_word(transcript):
     """
-    1. parse_transcript(transcript)
+    1. count_word_frequency(transcript)
     2. rank_by_freq_desc(pairs)
     """
-    parsed = parse_transcript(transcript)
+    if not transcript:
+        return []
+    if not isinstance(transcript, str):
+        return []
+    parsed = count_word_frequency(transcript)
     ranked = rank_by_freq_desc(parsed)
     return ranked
 

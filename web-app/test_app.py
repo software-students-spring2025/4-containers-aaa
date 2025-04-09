@@ -8,7 +8,7 @@ from werkzeug.datastructures import FileStorage
 import pytest
 import requests
 from pymongo.errors import PyMongoError
-from app import app, upload_entry, search_entry, update_entry, delete_entry, trigger_ml
+from app import app, upload_entry, search_entry, update_entry, delete_entry, trigger_ml, edit_entry
 
 
 @pytest.fixture
@@ -70,41 +70,50 @@ def test_upload_empty_file():
 
 
 def test_upload_provided_audio_file(test_client):
-    """Test upload route with a real audio file and metadata"""
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    audio_path = os.path.join(
-        current_dir,
-        "testing_audio",
-        "Trump_Short_Speech.mp3",
+    """Test upload route with a mock audio file and metadata"""
+    # Create a mock audio file in memory
+    mock_audio_content = b"Mock audio file content for testing"
+    file_storage = FileStorage(
+        stream=io.BytesIO(mock_audio_content),
+        filename="test_audio.mp3",
+        content_type="audio/mpeg"
     )
+    
+    data = {
+        "audio": file_storage,
+        "title": "Test Title",
+        "speaker": "Test Speaker",
+        "date": "2024-01-01",
+        "description": "Test Description"
+    }
 
-    # Verify the test audio file exists
-    assert os.path.exists(audio_path), f"Test audio file not found at {audio_path}"
-
-    with open(audio_path, "rb") as audio_file:
-        file_storage = FileStorage(
-            stream=io.BytesIO(audio_file.read()),
-            filename="Trump_Short_Speech.mp3",
-            content_type="audio/mpeg",
-        )
-        data = {
-            "audio": file_storage,
-            "title": "Test Title",
-            "speaker": "Trump",
-            "date": "2024-01-01",
-            "description": "Test Description",
-        }
-
-        with patch("app.upload_entry", return_value=True) as mock_upload_entry:
+    with patch("app.upload_entry", return_value=True) as mock_upload_entry:
+        with patch("app.trigger_ml", return_value={"transcript": "test transcript"}) as mock_trigger_ml:
             response = test_client.post(
                 "/upload",
                 data=data,
-                content_type="multipart/form-data",
+                content_type="multipart/form-data"
             )
 
             assert response.status_code == 200
             assert b"File uploaded successfully" in response.data
+            
+            # Verify upload_entry was called
             mock_upload_entry.assert_called_once()
+            
+            # Verify trigger_ml was called
+            mock_trigger_ml.assert_called_once()
+            
+            # Get the file path that was passed to trigger_ml
+            actual_filepath = mock_trigger_ml.call_args[0][0]
+            
+            # Verify the file was saved
+            assert os.path.exists(actual_filepath), "File was not saved"
+            
+            # Verify the content of the saved file
+            with open(actual_filepath, "rb") as f:
+                saved_content = f.read()
+                assert saved_content == mock_audio_content, "File content does not match"
 
 
 @patch("app.collection.insert_one")
@@ -176,9 +185,21 @@ def test_update_entry(mock_update):
     mock_update.return_value = MagicMock(modified_count=1)
     assert update_entry("test/audio.mp3", {"title": "Updated"})
 
-    # Update failed (no changes made)
+    # Update failed (no changes made) - same values
     mock_update.return_value = MagicMock(modified_count=0)
     assert not update_entry("test/audio.mp3", {"title": "No change"})
+
+    # Update failed (no matching document)
+    mock_update.return_value = MagicMock(modified_count=0)
+    assert not update_entry("nonexistent.mp3", {"title": "New Title"})
+
+    # Update failed (empty update fields)
+    mock_update.return_value = MagicMock(modified_count=0)
+    assert not update_entry("test/audio.mp3", {})
+
+    # Update failed (non-existent fields)
+    mock_update.return_value = MagicMock(modified_count=0)
+    assert not update_entry("test/audio.mp3", {"nonexistent_field": "value"})
 
     # Update error
     mock_update.side_effect = PyMongoError()
@@ -244,3 +265,20 @@ def test_trigger_ml_json_response(mock_post):
 
         result = trigger_ml("test/audio.mp3")
         assert result == test_data, f"Failed for test data: {test_data}"
+    
+
+@patch("app.collection.update_one")
+def test_edit_entry(mock_update, monkeypatch):
+    """Test the edit_entry function."""
+
+    response = app.test_client().get("/entry/edit")
+    assert response.status_code == 200
+
+    # Successful edit
+    mock_update.return_value = MagicMock(modified_count=1)
+    assert edit_entry("test/audio.mp3", {"title": "Updated"})
+
+    # Edit failed (not found)
+    mock_update.return_value = MagicMock(modified_count=0)
+    result = edit_entry("test/audio.mp3", {"title": "No change"})
+    assert result == ("Entry not found", 404)

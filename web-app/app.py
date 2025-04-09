@@ -174,26 +174,29 @@ def upload():
 
 
 @app.route("/entry/<path:file_path>/edit", methods=["GET", "POST"])
-def edit_entry(file_path):
+def edit_entry(file_path, update_fields=None):
     """
     Renders a edit page for a specific entry for user to edit any info except audio in database.
     """
-    entry = collection.find_one({"_id": file_path})
-    if not entry:
-        return "Entry not found", 404
+    try:
+        entry = collection.find_one({"_id": file_path})
+        if not entry:
+            return "Entry not found", 404
 
-    if request.method == "POST":
-        updated_fields = {
-            "title": request.form["title"],
-            "speaker": request.form["speaker"],
-            "date": request.form["date"],
-            "context": request.form["context"],
-            "transcript": request.form["transcript"],
-        }
+        if request.method == "POST":
+            updated_fields = {
+                "title": request.form["title"],
+                "speaker": request.form["speaker"],
+                "date": request.form["date"],
+                "context": request.form["context"],
+                "transcript": request.form["transcript"],
+            }
 
-        updated_fields["word_count"] = len(updated_fields["transcript"].split())
-        update_entry(file_path, updated_fields)
-        return redirect(url_for("view_entry", file_path=file_path))
+            updated_fields["word_count"] = len(updated_fields["transcript"].split())
+            update_entry(file_path, updated_fields)
+            return redirect(url_for("view_entry", file_path=file_path))
+    except PyMongoError:
+        return False
 
     return render_template("edit.html", entry=entry)
 
