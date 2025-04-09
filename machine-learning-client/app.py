@@ -33,6 +33,43 @@ collection = db["transcriptions"]
 
 app = Flask(__name__)
 
+# @app.route("/",methods=["POST"])
+# def index():
+#     """
+#     Return a simple HTML page
+#     """
+#     data = request.get_json()
+#     voice_data_rel_file_path = data.get("audio_file_path")
+
+#     print(f"Received file path: {voice_data_rel_file_path}")
+
+#     if not voice_data_rel_file_path:
+#         return jsonify({"message": "No audio file path provided"}), 400
+    
+#     # # Extract just the filename from the path
+#     # filename = os.path.basename(voice_data_rel_file_path)
+
+#     # Use the shared volume path
+#     file_path = os.path.join("/app/uploaded_audio", voice_data_rel_file_path)
+#     print(f"Looking for file at: {file_path}")
+
+#     if not os.path.exists(file_path):
+#         print(f"File not found at: {file_path}")
+#         return jsonify({"message": f"File not found: {file_path}"}), 404
+    
+#     # Get transcript
+#     transcript = get_transcript(file_path)
+#     print(f"test Transcript result: {transcript[:100]}...")  # Print first 100 chars
+
+#     # # Get top words
+#     # top_words = trans_to_top_word(transcript)
+
+#     # # Get word count
+#     # word_count = get_word_count(transcript)
+    
+#     # return jsonify({"transcript": transcript, "top_words": top_words, "word_count": word_count}), 200
+#     return transcript
+
 
 @app.route("/get-transcripts", methods=["POST"])
 def process_transcript_api():
