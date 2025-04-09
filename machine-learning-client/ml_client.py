@@ -54,9 +54,9 @@ def get_transcript(audio_file: str):
         return f"index error: {e}"
 
 
-#def main():
-    #audio_file = "../web-app/testing_audio/Trump_Short_Speech.mp3"
-    #transcript = get_transcript(audio_file)
-    #print(transcript)
-#if __name__ == "__main__":
-    #main()
+# def main():
+#     audio_file = "../web-app/testing_audio/Trump_Short_Speech.mp3"
+#     transcript = get_transcript(audio_file)
+#     print(transcript)
+# if __name__ == "__main__":
+#     main()
