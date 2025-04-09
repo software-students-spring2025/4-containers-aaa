@@ -185,16 +185,13 @@ def test_update_entry(mock_update):
     assert not update_entry("test/audio.mp3", {"title": "Error"})
 
 
-@patch('requests.post')
+@patch("requests.post")
 def test_trigger_ml_success(mock_post):
     """Test trigger_ml function with successful response"""
     # Mock successful response
     mock_response = MagicMock()
     mock_response.status_code = 200
-    expected_data = {
-        "transcript": "test transcript",
-        "message": "success"
-    }
+    expected_data = {"transcript": "test transcript", "message": "success"}
     mock_response.json.return_value = expected_data
     mock_post.return_value = mock_response
 
@@ -204,10 +201,11 @@ def test_trigger_ml_success(mock_post):
     mock_post.assert_called_once_with(
         "http://ml-client:6000/get-transcripts",
         json={"audio_file_path": "test/audio.mp3"},
-        timeout=10
+        timeout=10,
     )
 
-@patch('requests.post')
+
+@patch("requests.post")
 def test_trigger_ml_request_exception(mock_post):
     """Test trigger_ml function with request exception"""
     # Mock request exception
@@ -215,7 +213,8 @@ def test_trigger_ml_request_exception(mock_post):
     result = trigger_ml("test/audio.mp3")
     assert result == "Request exception"
 
-@patch('requests.post')
+
+@patch("requests.post")
 def test_trigger_ml_connection_error(mock_post):
     """Test trigger_ml function with connection error"""
     # Mock connection error
@@ -223,7 +222,8 @@ def test_trigger_ml_connection_error(mock_post):
     result = trigger_ml("test/audio.mp3")
     assert result == "Connection error"
 
-@patch('requests.post')
+
+@patch("requests.post")
 def test_trigger_ml_json_response(mock_post):
     """Test trigger_ml function with different JSON responses"""
     test_cases = [
@@ -234,7 +234,7 @@ def test_trigger_ml_json_response(mock_post):
         # Response with transcript and other fields
         {"transcript": "hello world", "confidence": 0.95},
         # Response with multiple fields
-        {"transcript": "test", "message": "success", "duration": 1.5}
+        {"transcript": "test", "message": "success", "duration": 1.5},
     ]
     for test_data in test_cases:
         mock_response = MagicMock()

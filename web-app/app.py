@@ -235,7 +235,7 @@ def trigger_ml(filepath):
 
         response_data = response.json()
         print(f"ML client response: {response_data}")
-        return (response_data)
+        return response_data
     except requests.exceptions.RequestException:
         return "Request exception"
     except ConnectionError:
