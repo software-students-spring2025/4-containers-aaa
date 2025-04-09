@@ -281,7 +281,7 @@ def test_trigger_ml_json_response(mock_post):
 def test_edit_entry(mock_update):
     """Test the edit_entry function."""
 
-    # response = app.test_client().get("/entry/edit")
+    response = app.test_client().get("/entry/edit")
     # assert response.status_code == 200
 
     # Successful edit
