@@ -45,7 +45,7 @@ app = Flask(__name__)
 
 #     if not voice_data_rel_file_path:
 #         return jsonify({"message": "No audio file path provided"}), 400
-    
+
 #     # # Extract just the filename from the path
 #     # filename = os.path.basename(voice_data_rel_file_path)
 
@@ -56,7 +56,7 @@ app = Flask(__name__)
 #     if not os.path.exists(file_path):
 #         print(f"File not found at: {file_path}")
 #         return jsonify({"message": f"File not found: {file_path}"}), 404
-    
+
 #     # Get transcript
 #     transcript = get_transcript(file_path)
 #     print(f"test Transcript result: {transcript[:100]}...")  # Print first 100 chars
@@ -66,7 +66,7 @@ app = Flask(__name__)
 
 #     # # Get word count
 #     # word_count = get_word_count(transcript)
-    
+
 #     # return jsonify({"transcript": transcript, "top_words": top_words, "word_count": word_count}), 200
 #     return transcript
 
@@ -167,23 +167,23 @@ def rank_by_freq_desc(pairs):
     else:
         if not all(isinstance(item, list) for item in pairs):
             return []
-        if not all (len(item) == 2 for item in pairs):
+        if not all(len(item) == 2 for item in pairs):
             return []
         if not all(isinstance(item[0], str) for item in pairs):
             return []
         if not all(isinstance(item[1], int) for item in pairs):
             return []
-        
+
     return sorted(pairs, key=lambda x: x[1], reverse=True)
 
 
 def count_word_frequency(transcript):
     """
     Parse words using spaces and count their frequency, excluding punctuation.
-    
+
     Args:
         transcript (str): The transcript text to analyze
-        
+
     Returns:
         list: A list of [word, count] pairs sorted by frequency (descending)
     """
@@ -191,12 +191,12 @@ def count_word_frequency(transcript):
         return []
     if not isinstance(transcript, str):
         return []
-    
+
     words = transcript.lower().split()
     words = [word.strip(string.punctuation) for word in words]
     words = [word for word in words if word]
     freq = Counter(words)
-    
+
     return [[word, count] for word, count in freq.items()]
 
 

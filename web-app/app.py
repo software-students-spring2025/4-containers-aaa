@@ -174,7 +174,7 @@ def upload():
 
 
 @app.route("/entry/<path:file_path>/edit", methods=["GET", "POST"])
-def edit_entry(file_path, update_fields=None):
+def edit_entry(file_path, information=None):
     """
     Renders a edit page for a specific entry for user to edit any info except audio in database.
     """
@@ -184,14 +184,21 @@ def edit_entry(file_path, update_fields=None):
             return "Entry not found", 404
 
         if request.method == "POST":
-            updated_fields = {
-                "title": request.form["title"],
-                "speaker": request.form["speaker"],
-                "date": request.form["date"],
-                "context": request.form["context"],
-                "transcript": request.form["transcript"],
-            }
-
+            if information is None:
+                updated_fields = {
+                    "title": request.form["title"],
+                    "speaker": request.form["speaker"],
+                    "date": request.form["date"],
+                    "context": request.form["context"],
+                    "transcript": request.form["transcript"],
+                }
+            else:
+                updated_fields = {
+                    "title": "title",
+                    "speaker": "speaker",
+                    "context": "context",
+                    "transcript": "transcript",
+                }
             updated_fields["word_count"] = len(updated_fields["transcript"].split())
             update_entry(file_path, updated_fields)
             return redirect(url_for("view_entry", file_path=file_path))
