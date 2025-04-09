@@ -1,8 +1,8 @@
 """Test the ml_client module for machine-learning-client"""
 
 import os
-import tempfile
 import pytest
+
 # from unittest.mock import patch, MagicMock
 # import unittest
 # from deepgram import DeepgramClient, PrerecordedOptions
@@ -20,30 +20,16 @@ SAMPLE_TRANSCRIPT = "This is a sample transcript."
 SAMPLE_ERROR_MESSAGE = "Error processing audio file."
 
 
-@pytest.fixture
-def mock_audio_file():
-    """Create a temporary audio file for testing"""
-    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as temp_file:
-        temp_file.write(b"Mock audio content")
-        temp_file_path = temp_file.name
-
-    yield temp_file_path
-
-    # Clean up the file after tests
-    if os.path.exists(temp_file_path):
-        os.unlink(temp_file_path)
-
-
-def test_sample_audio_fixture(mock_audio_file):
+def test_sample_audio_fixture(fixture_mock_audio_file):
     """Test mock_audio_file fixture creation."""
     # Check that the file exists
-    assert os.path.exists(mock_audio_file)
+    assert os.path.exists(fixture_mock_audio_file)
 
     # Check that it's an MP3 file
-    assert mock_audio_file.endswith(".mp3")
+    assert fixture_mock_audio_file.endswith(".mp3")
 
     # Check that it has content
-    with open(mock_audio_file, "rb") as f:
+    with open(fixture_mock_audio_file, "rb") as f:
         content = f.read()
         assert content == b"Mock audio content"
 

@@ -3,9 +3,9 @@ Flask application for ml client to receive signals from frontend
 """
 
 import os
+import string
 from collections import Counter
 from dotenv import load_dotenv
-import string
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError, ConnectionFailure, OperationFailure
@@ -67,7 +67,8 @@ app = Flask(__name__)
 #     # # Get word count
 #     # word_count = get_word_count(transcript)
 
-#     # return jsonify({"transcript": transcript, "top_words": top_words, "word_count": word_count}), 200
+#     # return jsonify({"transcript": transcript,
+# "top_words": top_words, "word_count": word_count}), 200
 #     return transcript
 
 
@@ -158,21 +159,14 @@ def rank_by_freq_desc(pairs):
     """
     if not pairs:
         return []
-    if not isinstance(pairs, list):
+    if not isinstance(pairs, list) or len(pairs) == 0 or pairs[0] == []:
         return []
-    if len(pairs) == 0:
+    if not all((isinstance(item, list) and len(item) == 2) for item in pairs):
         return []
-    if pairs[0] == []:
+    if not all(isinstance(item[0], str) for item in pairs):
         return []
-    else:
-        if not all(isinstance(item, list) for item in pairs):
-            return []
-        if not all(len(item) == 2 for item in pairs):
-            return []
-        if not all(isinstance(item[0], str) for item in pairs):
-            return []
-        if not all(isinstance(item[1], int) for item in pairs):
-            return []
+    if not all(isinstance(item[1], int) for item in pairs):
+        return []
 
     return sorted(pairs, key=lambda x: x[1], reverse=True)
 
