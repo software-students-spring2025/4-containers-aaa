@@ -1,28 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>{{ entry.title }} - Details</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <h1>{{ entry.title }}</h1>
-  <p><strong>Speaker:</strong> {{ entry.speaker }}</p>
-  <p><strong>Date:</strong> {{ entry.date }}</p>
-  <p><strong>Context:</strong> {{ entry.context }}</p>
-  <p><strong>Transcript:</strong></p>
-  <pre>{{ entry.transcript }}</pre>
-  <p><strong>Word Count:</strong> {{ entry.word_count }}</p>
-  <p><strong>Top Words:</strong> {{ entry.top_words | join(", ") }}</p>
+  <div class="container">
+    <h1>{{ entry.title }}</h1>
 
-  {% if entry.audio_file %}
-    <p><strong>Audio:</strong></p>
-    <audio controls>
-      <source src="{{ url_for('static', filename='uploaded_audio/' + entry.audio_file.split('/')[-1]) }}" type="audio/mpeg">
-      Your browser does not support the audio tag.
-    </audio>
-  {% endif %}
+    <p><strong>Speaker:</strong> {{ entry.speaker }}</p>
+    <p><strong>Date:</strong> {{ entry.date }}</p>
+    <p><strong>Context:</strong> {{ entry.context }}</p>
 
-  <br><br>
-  <a href="{{ url_for('index') }}">← Back to List</a>
+    <p><strong>Transcript:</strong></p>
+    <pre class="transcript-box">{{ entry.transcript }}</pre>
+
+    <p><strong>Word Count:</strong> {{ entry.word_count }}</p>
+
+    <p><strong>Top Words:</strong>
+      {% if entry.top_words %}
+        {{ entry.top_words | join(", ") }}
+      {% else %}
+        <em>No top words available.</em>
+      {% endif %}
+    </p>
+
+    {% if entry.audio_file %}
+      <p><strong>Audio:</strong></p>
+      <audio controls style="width: 100%; margin-top: 10px;">
+        <source src="{{ url_for('static', filename='uploaded_audio/' + entry.audio_file.split('/')[-1]) }}" type="audio/mpeg">
+        Your browser does not support the audio tag.
+      </audio>
+    {% endif %}
+
+    <div style="margin-top: 2rem;">
+      <a href="{{ url_for('index') }}" class="cancel-button">← Back to List</a>
+    </div>
+  </div>
 </body>
 </html>
