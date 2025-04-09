@@ -83,7 +83,7 @@ def test_rank_by_freq_desc():
     assert rank_by_freq_desc(None) == []
 
 
-def trans_to_top_word():
+def test_trans_to_top_word():
     """Test trans_to_top_word function."""
     assert trans_to_top_word("This is a sample sample transcript.") == [['sample', 2], ['this', 1], ['is', 1], ['a', 1], ['transcript', 1]]
     assert trans_to_top_word("Trying to test this function with punctuation, like this: 'Hello, world!'") == [['this', 2], ['trying', 1], ['to', 1], ['test', 1], ['function', 1], ['with', 1], ['punctuation', 1], ['like', 1], ['hello', 1], ['world', 1]]
