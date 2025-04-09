@@ -13,7 +13,6 @@ from deepgram import (
 
 # Load environment variables from .env file
 load_dotenv()
-print("API KEY:", os.getenv("DEEPGRAM_API_KEY")) 
 
 
 def get_transcript(audio_file: str):
@@ -55,10 +54,10 @@ def get_transcript(audio_file: str):
         return f"index error: {e}"
 
 
-def main():
-     audio_file = "testing_audio/Trump_Short_Speech.mp3"
-     transcript = get_transcript(audio_file)
-     print(transcript)
+#def main():
+    #audio_file = "testing_audio/Trump_Short_Speech.mp3"
+    #transcript = get_transcript(audio_file)
+    #print(transcript)
 
-if __name__ == "__main__":
-     main()
+#if __name__ == "__main__":
+    #main()
