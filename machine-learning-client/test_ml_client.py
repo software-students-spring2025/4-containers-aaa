@@ -8,7 +8,6 @@ from app import (
     rank_by_freq_desc,
     trans_to_top_word,
     count_word_frequency,
-    process_transcript_api
 )
 
 # Sample test data
@@ -181,4 +180,3 @@ def test_processs_transcript_api(test_client):
                         "/get-transcripts", json={"audio_file_path": "test.mp3"}
                     )
                     assert response.status_code == 500
-
