@@ -341,12 +341,12 @@ def test_view_entry():
     # Test when entry is not found
     mock_find_one.return_value = None
     response = app.test_client().get("/entry/nonexistent.mp3")
-    assert response.status_code == 500  
+    assert response.status_code == 500
 
-     # Upload failure (DB error)
+    # Upload failure (DB error)
     mock_find_one.side_effect = PyMongoError()
     response = app.test_client().get("/entry/dberror.mp3")
-    assert response.status_code == 500  
+    assert response.status_code == 500
 
 
 def test_create():
