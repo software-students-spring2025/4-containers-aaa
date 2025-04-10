@@ -216,9 +216,7 @@ def trans_to_top_word(transcript):
         return []
     parsed = count_word_frequency(transcript)
     filtered = [
-        [word, count]
-        for word, count in parsed
-        if count > 2 and word not in STOP_WORDS
+        [word, count] for word, count in parsed if count > 2 and word not in STOP_WORDS
     ]  # Filter out words that are 3 characters or less
     ranked = rank_by_freq_desc(filtered)
     return ranked
@@ -226,4 +224,3 @@ def trans_to_top_word(transcript):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=6000)
-   
