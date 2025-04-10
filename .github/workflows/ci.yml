@@ -24,3 +24,8 @@ jobs:
           cd web-app
           pipenv install pytest
           pipenv run pytest
+      - name: Test with ml-client with pytest
+        run: |
+          cd machine-learning-client
+          pipenv install pytest
+          pipenv run pytest
