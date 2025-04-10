@@ -39,10 +39,52 @@ app.config["UPLOAD_FOLDER"] = os.path.join("static", "uploaded_audio")
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50MB max file size
 
 STOP_WORDS = {
-    "the", "is", "in", "and", "of", "a", "to", "with", "that", "for", "on", "as", "are",
-    "at", "by", "an", "be", "this", "it", "from", "or", "was", "we", "you", "your", "they",
-    "he", "she", "but", "not", "have", "has", "had", "can", "will", "do", "does", "did",
-    "so", "if", "then", "them", "these", "those", "there", "here"
+    "the",
+    "is",
+    "in",
+    "and",
+    "of",
+    "a",
+    "to",
+    "with",
+    "that",
+    "for",
+    "on",
+    "as",
+    "are",
+    "at",
+    "by",
+    "an",
+    "be",
+    "this",
+    "it",
+    "from",
+    "or",
+    "was",
+    "we",
+    "you",
+    "your",
+    "they",
+    "he",
+    "she",
+    "but",
+    "not",
+    "have",
+    "has",
+    "had",
+    "can",
+    "will",
+    "do",
+    "does",
+    "did",
+    "so",
+    "if",
+    "then",
+    "them",
+    "these",
+    "those",
+    "there",
+    "here",
 }
 
 # Ensure upload directory exists
@@ -240,7 +282,7 @@ def upload_entry(file_path, field_value_dict=None):
 
     if field_value_dict is None:
         field_value_dict = {}
-    
+
     transcript = field_value_dict.get("transcript", "")
     word_count = len(transcript.split())
 
@@ -256,7 +298,7 @@ def upload_entry(file_path, field_value_dict=None):
         key=lambda x: x[1],
         reverse=True,
     )
-    #store computed values into dic
+    # store computed values into dic
     field_value_dict["word_count"] = word_count
     field_value_dict["top_words"] = top_words
     # Create a new entry with default values or values from the dictionary
