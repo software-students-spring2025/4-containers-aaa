@@ -35,10 +35,52 @@ app = Flask(__name__)
 
 
 STOP_WORDS = {
-    "the", "is", "in", "and", "of", "a", "to", "with", "that", "for", "on", "as", "are",
-    "at", "by", "an", "be", "this", "it", "from", "or", "was", "we", "you", "your", "they",
-    "he", "she", "but", "not", "have", "has", "had", "can", "will", "do", "does", "did",
-    "so", "if", "then", "them", "these", "those", "there", "here"
+    "the",
+    "is",
+    "in",
+    "and",
+    "of",
+    "a",
+    "to",
+    "with",
+    "that",
+    "for",
+    "on",
+    "as",
+    "are",
+    "at",
+    "by",
+    "an",
+    "be",
+    "this",
+    "it",
+    "from",
+    "or",
+    "was",
+    "we",
+    "you",
+    "your",
+    "they",
+    "he",
+    "she",
+    "but",
+    "not",
+    "have",
+    "has",
+    "had",
+    "can",
+    "will",
+    "do",
+    "does",
+    "did",
+    "so",
+    "if",
+    "then",
+    "them",
+    "these",
+    "those",
+    "there",
+    "here",
 }
 
 
@@ -173,7 +215,11 @@ def trans_to_top_word(transcript):
     if not transcript or not isinstance(transcript, str):
         return []
     parsed = count_word_frequency(transcript)
-    filtered = [(word, count) for word, count in parsed if len(word) > 3 and word not in STOP_WORDS]# Filter out words that are 3 characters or less
+    filtered = [
+        (word, count)
+        for word, count in parsed
+        if len(word) > 3 and word not in STOP_WORDS
+    ]  # Filter out words that are 3 characters or less
     ranked = rank_by_freq_desc(filtered)
     return ranked
 
