@@ -124,7 +124,9 @@ def test_trans_to_top_word():
             The artist used a vibrant blue in her painting of the sea. 
             The sky above was a clear, bright blue. 
             She often felt a sense of peace when surrounded by the color blue."""
-        ) == [["city", 3], ["house", 3], ["blue", 3]])
+        )
+        == [["city", 3], ["house", 3], ["blue", 3]]
+    )
 
     assert (
         trans_to_top_word(
@@ -136,7 +138,9 @@ def test_trans_to_top_word():
             A long walk in nature always cleared his head. The old tree stood tall and strong in 
             the center of the field. Generations had gathered under the shade of the tree. 
             They decided to plant another tree nearby, ensuring the legacy continued."""
-        )== [["rain", 3], ["walk", 3], ["tree", 3]])
+        )
+        == [["rain", 3], ["walk", 3], ["tree", 3]]
+    )
 
     # test with no input
     assert trans_to_top_word("") == []
