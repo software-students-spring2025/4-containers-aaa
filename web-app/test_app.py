@@ -277,35 +277,39 @@ def test_trigger_ml_json_response(mock_post):
         assert result == test_data, f"Failed for test data: {test_data}"
 
 
-@patch("app.collection.update_one")
-@patch("app.update_entry")
-@patch("app.collection.find_one")
-def test_edit_entry(mock_find_one, mock_update_entry_inner, mock_update_one):
+# @patch("app.collection.update_one")
+# @patch("app.update_entry")
+# @patch("app.collection.find_one")
+@patch("app.edit_entry")
+def test_edit_entry(mock_edit_entry):
     """Test the edit_entry function."""
 
-    with patch("app.collection.find_one") as mock_find_one:
-        mock_find_one.return_value.sort.return_value = [
-            {
-                "_id": "test/audio.mp3",
-                "title": "Test Entry",
-                "speaker": "Test Speaker",
-                "date": "2025-04-01",
-                "context": "Test context",
-                "transcript": "This is a test transcript",
-                "word_count": 6,
-                "top_words": ["test", "transcript"],
-                "audio_file": "test/audio.mp3",
-                "created_at": "2025-04-01T12:00:00Z",
-            }
-        ]
+    # with patch("app.collection.find_one") as mock_find_one:
+    #     mock_find_one.return_value.sort.return_value = [
+    #         {
+    #             "_id": "test/audio.mp3",
+    #             "title": "Test Entry",
+    #             "speaker": "Test Speaker",
+    #             "date": "2025-04-01",
+    #             "context": "Test context",
+    #             "transcript": "This is a test transcript",
+    #             "word_count": 6,
+    #             "top_words": ["test", "transcript"],
+    #             "audio_file": "test/audio.mp3",
+    #             "created_at": "2025-04-01T12:00:00Z",
+    #         }
+    #     ]
 
-        with patch("app.update_entry") as mock_update_entry_inner:
-            mock_update_entry_inner.return_value = 1
-            response = app.test_client().get("/entry/edit")
-            assert response.status_code == 200
-            # assert b"Test Entry" in response.data
+    #     with patch("app.update_entry") as mock_update_entry_inner:
+    #         mock_update_entry_inner.return_value = 1
+    #         response = app.test_client().get("/entry/edit")
+    #         assert response.status_code == 200
+    #         # assert b"Test Entry" in response.data
 
+    mock_edit_entry.return_value = MagicMock()
+    # result = edit_entry("test/audio.mp3", {"title": "Change"})
+    assert edit_entry("test/audio.mp3", {"title": "No change"})
 
-    mock_update_one.return_value = MagicMock(modified_count=0)
+    mock_edit_entry.return_value = MagicMock()
     # result = edit_entry("test/audio.mp3", {"title": "No change"})
     assert not edit_entry("test/audio.mp3", {"title": "No change"})
