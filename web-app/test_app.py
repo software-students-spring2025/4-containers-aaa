@@ -279,7 +279,7 @@ def test_trigger_ml_json_response(mock_post):
 
 @patch("app.collection.update_one")
 @patch("app.update_entry")
-def test_edit_entry(mock_find, mock_update):
+def test_edit_entry(mock_finds, mock_updates):
     """Test the edit_entry function."""
 
     with patch("app.collection.find_one") as mock_find:
