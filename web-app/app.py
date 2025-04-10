@@ -206,8 +206,6 @@ def edit_entry(file_path, information=None):
     except PyMongoError:
         return False
 
-    
-
 
 def upload_entry(file_path, field_value_dict=None):
     """
