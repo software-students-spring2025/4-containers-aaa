@@ -277,11 +277,11 @@ def test_trigger_ml_json_response(mock_post):
         assert result == test_data, f"Failed for test data: {test_data}"
 
 
-
-@patch("app.collection.find_one")
+@patch("app.collection.update_one")
 @patch("app.update_entry")
 def test_edit_entry(mock_find, mock_update):
     """Test the edit_entry function."""
+
 
     with patch("app.collection.find_one") as mock_find:
         mock_find.return_value.sort.return_value = [
