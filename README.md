@@ -14,6 +14,7 @@ This is a full-stack, containerized web application that allows users to upload 
 - [Tony Zhao](https://github.com/Tonyzsp)
 - [Rin Qi](https://github.com/Rin-Qi)
 - [Corrine Huang](https://github.com/ChuqiaoHuang)
+- [Kenny Pan](https://github.com/kenny-pan)
 
 ## Prerequisites
 
