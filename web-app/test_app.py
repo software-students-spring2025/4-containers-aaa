@@ -279,7 +279,7 @@ def test_trigger_ml_json_response(mock_post):
 
 @patch("app.collection.update_one")
 @patch("app.update_entry")
-def test_edit_entry():
+def test_edit_entry(mock_find, mock_update):
     """Test the edit_entry function."""
 
     with patch("app.collection.find_one") as mock_find:
@@ -297,11 +297,13 @@ def test_edit_entry():
                 "created_at": "2025-04-01T12:00:00Z",
             }
         ]
+
         with patch("app.update_entry") as mock_update:
             mock_update.return_value = 1
             response = app.test_client().get("/entry/edit")
             assert response.status_code == 200
             # assert b"Test Entry" in response.data
+
 
     mock_update.return_value = MagicMock(modified_count=0)
     # result = edit_entry("test/audio.mp3", {"title": "No change"})
