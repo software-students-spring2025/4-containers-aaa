@@ -318,7 +318,9 @@ def test_edit_entry():
 
 def test_view_entry():
     """Test the view_entry route."""
-    with patch("app.collection.find_one", return_value = {
+    with patch(
+        "app.collection.find_one",
+        return_value={
             "_id": "test/audio.mp3",
             "title": "Test Entry",
             "speaker": "Test Speaker",
@@ -329,7 +331,8 @@ def test_view_entry():
             "top_words": ["test", "transcript"],
             "audio_file": "test/audio.mp3",
             "created_at": "2025-04-01T12:00:00Z",
-        }) as mock_find_one:
+        },
+    ) as mock_find_one:
 
         response = app.test_client().get("/entry/test/audio.mp3")
         assert response.status_code == 200
