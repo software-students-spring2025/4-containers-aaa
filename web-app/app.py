@@ -235,7 +235,7 @@ def edit_entry(file_path):
     try:
         entry = collection.find_one({"_id": file_path})
         if not entry:
-            return "Entry not found", 404
+            return False
 
         if request.method == "POST":
             updated_fields = {

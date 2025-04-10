@@ -4,6 +4,7 @@ click==8.1.8
 deepgram-sdk==3.10.1
 dnspython==2.7.0
 dotenv==0.9.9
+coverage==7.8.0
 Flask==3.0.2
 iniconfig==2.1.0
 itsdangerous==2.2.0
