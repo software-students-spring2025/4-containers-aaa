@@ -291,3 +291,14 @@ button:disabled {
     max-width: 100%; /* Responsive for small screens */
     overflow-x: auto; /* Scroll if long content overflows */
   }
+
+  #topWordsChart {
+    width: 100%;
+    max-width: 700px;
+    height: 400px !important;
+    margin-top: 1rem;
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
