@@ -92,8 +92,12 @@ def test_upload_provided_audio_file(test_client):
     }
 
     with patch("app.upload_entry", return_value=True) as mock_upload_entry:
-        with patch("app.trigger_ml", return_value={"transcript": "test transcript"}) as mock_trigger_ml:
-            response = test_client.post("/upload", data=data, content_type="multipart/form-data")
+        with patch(
+            "app.trigger_ml", return_value={"transcript": "test transcript"}
+        ) as mock_trigger_ml:
+            response = test_client.post(
+                "/upload", data=data, content_type="multipart/form-data"
+            )
             assert response.status_code == 200
             assert b"File uploaded successfully" in response.data
             mock_upload_entry.assert_called_once()
@@ -130,11 +134,15 @@ def test_delete_entry(mock_delete):
 @patch("app.collection.find")
 def test_search_entry(mock_find):
     """Test the search_entry function."""
-    mock_find.return_value = [{"_id": "test/audio.mp3", "title": "Test", "speaker": "John"}]
+    mock_find.return_value = [
+        {"_id": "test/audio.mp3", "title": "Test", "speaker": "John"}
+    ]
     assert search_entry(file_path="test")
     mock_find.return_value = []
     assert not search_entry(file_path="missing")
-    mock_find.return_value = [{"_id": "test/audio.mp3", "title": "Test", "speaker": "John"}]
+    mock_find.return_value = [
+        {"_id": "test/audio.mp3", "title": "Test", "speaker": "John"}
+    ]
     assert search_entry(file_path="test", title="Test", speaker="John")
     mock_find.side_effect = PyMongoError()
     assert not search_entry(file_path="error")
@@ -159,7 +167,10 @@ def test_trigger_ml_success(mock_post):
     """Test trigger_ml function with successful response"""
     mock_response = MagicMock()
     mock_response.status_code = 200
-    mock_response.json.return_value = {"transcript": "test transcript", "message": "success"}
+    mock_response.json.return_value = {
+        "transcript": "test transcript",
+        "message": "success",
+    }
     mock_post.return_value = mock_response
     result = trigger_ml("test/audio.mp3")
     assert result == {"transcript": "test transcript", "message": "success"}
