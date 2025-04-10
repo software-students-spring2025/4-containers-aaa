@@ -288,9 +288,9 @@ def test_edit_entry():
             "speaker": "Test Speaker",
             "date": "2025-04-01",
             "context": "Test context",
-            "transcript": """The rain fell steadily against the windowpane, a soft, persistent drumming. 
-            She watched the rain blur the world outside, each drop a tiny, fleeting moment.
-            The sound of the rain created a cozy atmosphere in the room. 
+            "transcript": """The rain fell steadily against the windowpane, a soft, persistent 
+            drumming. She watched the rain blur the world outside, each drop a tiny, fleeting 
+            moment. The sound of the rain created a cozy atmosphere in the room. 
             He loved to walk in the woods, the crunch of leaves under his feet. 
             Every morning, he would walk along the familiar path, observing the changing seasons. 
             A long walk in nature always cleared his head. The old tree stood tall and strong in 
