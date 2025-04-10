@@ -202,6 +202,7 @@ def edit_entry(file_path, information=None):
             updated_fields["word_count"] = len(updated_fields["transcript"].split())
             update_entry(file_path, updated_fields)
             return redirect(url_for("view_entry", file_path=file_path))
+        return "connected", 200
     except PyMongoError:
         return False
 
