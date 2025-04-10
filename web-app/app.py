@@ -195,9 +195,11 @@ def edit_entry(file_path):
             }
             updated_fields["word_count"] = len(updated_fields["transcript"].split())
             updated_fields["top_words"] = sorted(
-                Counter(re.findall(r"\b\w+\b", updated_fields["transcript"].lower())).items(),
+                Counter(
+                    re.findall(r"\b\w+\b", updated_fields["transcript"].lower())
+                ).items(),
                 key=lambda x: x[1],
-                reverse=True
+                reverse=True,
             )
             update_entry(file_path, updated_fields)
             return redirect(url_for("view_entry", file_path=file_path))
