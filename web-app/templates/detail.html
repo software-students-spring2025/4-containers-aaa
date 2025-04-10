@@ -105,7 +105,12 @@
         }
       }
     });
+    window.addEventListener('scroll', function() {
+      const scrollY = window.scrollY;
+      document.body.style.backgroundPosition = `0 ${scrollY * 0.5}px, 0 ${100 + (scrollY * 0.5)}px`;
+    });
   </script>
+
   {% endif %}
 </body>
 </html>

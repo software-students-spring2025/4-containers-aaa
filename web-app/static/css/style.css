@@ -5,7 +5,10 @@
 }
 
 body {
-    
+    background-image: url(../image/background-img.jpg); 
+    background-position: 0 0, 0 100%; 
+    background-size: cover;
+    transition: background-position 0.2s ease-out;  
     font-family: Arial, sans-serif;
     background-color: #222222;
     color: #dedede;
