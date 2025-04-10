@@ -1,11 +1,8 @@
 """Test the ml_client module for machine-learning-client"""
 
 import os
-import pytest
-
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from app import (
-    app,
     get_word_count,
     rank_by_freq_desc,
     trans_to_top_word,
@@ -145,20 +142,6 @@ def test_trans_to_top_word():
     assert trans_to_top_word(0) == []
 
 
-@pytest.fixture
-def test_client():
-    """Create a test client for the app"""
-    app.config["TESTING"] = True
-    app.config["UPLOAD_FOLDER"] = "web-app/testing_audio"
-    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-    with app.test_client() as client:
-        yield client
-    # Cleanup after tests
-    for file in os.listdir(app.config["UPLOAD_FOLDER"]):
-        os.remove(os.path.join(app.config["UPLOAD_FOLDER"], file))
-    os.rmdir(app.config["UPLOAD_FOLDER"])
-
-
 def test_processs_transcript_api(test_client):
     """Test index route"""
 
@@ -166,10 +149,27 @@ def test_processs_transcript_api(test_client):
         mock_exists.return_value = True
         with patch("ml_client.get_transcript") as mock_get_transcript:
             mock_get_transcript.return_value = "This is a sample transcript."
+            with patch("app.collection.find_one") as mock_find:
+                mock_find.return_value.sort.return_value = [
+                    {
+                        "_id": "test/audio.mp3",
+                        "title": "Test Entry",
+                        "speaker": "Test Speaker",
+                        "date": "2025-04-01",
+                        "context": "Test context",
+                        "transcript": "This is a test transcript",
+                        "word_count": 6,
+                        "top_words": ["test", "transcript"],
+                        "audio_file": "test/audio.mp3",
+                        "created_at": "2025-04-01T12:00:00Z",
+                    }
+                ]
+                with patch("app.collection.update_one") as mock_update:
+                    mock_update.return_value = 1
+                    response = test_client.post(
+                        "/get-transcripts", json={"audio_file_path": "test.mp3"}
+                    )
 
-            response = test_client.post(
-                "/get-transcripts", json={"audio_file_path": "test.mp3"}
-            )
-            mock_exists.assert_called_once()
-            # Check the status code from the response object
-            assert response.status_code == 200
+                    mock_exists.assert_called_once()
+                    # Check the status code from the response object
+                    assert response.status_code == 200
