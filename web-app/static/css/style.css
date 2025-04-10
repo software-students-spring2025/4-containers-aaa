@@ -7,8 +7,8 @@
 body {
     
     font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: #222222;
+    color: #dedede;
 }
 
 .container {
@@ -23,7 +23,7 @@ body {
     margin: 0 auto;
     padding: 30px;
     padding-top: 100px;
-    background-color: white;
+    background-color: 222222;
 }
 
 .second-container p {
@@ -50,7 +50,7 @@ body {
     right: 20px;
     width: 50px;
     height: 50px;
-    background-color: #9900ff;
+    background-color: #9f40df;
     color: white;
     border-radius: 50%;
     display: flex;
@@ -65,6 +65,7 @@ body {
 
 .add-button:hover {
     transform: scale(1.1);
+    background-color: #7004b9;
 }
 
 .entry-list {
@@ -81,9 +82,10 @@ body {
     padding: 1rem;
     border: 1px solid #ddd;
     border-radius: 10px;
-    background-color: #fff;
+    background-color: #383939;
     transition: transform 0.2s ease;
     box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.06);
+    color:#dedede
 }
 
 .entry-item:hover {
@@ -93,13 +95,13 @@ body {
 .entry-info h3 {
     font-size: 1.2rem;
     margin-bottom: 0.4rem;
-    color: #333;
+    color:#dedede
 }
 
 .entry-info p {
     font-size: 0.95rem;
     margin-bottom: 0.3rem;
-    color: #555;
+    color:#dedede
 }
 
 .entry-actions {
@@ -122,7 +124,7 @@ body {
 }
 
 .view-button {
-    background-color: #9900ff;
+    background-color: #9f40df;
 }
 
 .view-button:hover {
@@ -130,7 +132,7 @@ body {
 }
 
 .delete-button {
-    background-color: #f60be2;
+    background-color: #ca476c;
 }
 
 .delete-button:hover {
@@ -139,7 +141,7 @@ body {
 
 /* Create page styles */
 .create-form {
-    background-color: white;
+    background-color: #383939;
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -147,7 +149,7 @@ body {
 
 h1 {
     margin-bottom: 30px;
-    color: #9900ff;
+    color: #dbacfb;
 }
 
 .form-group {
@@ -165,14 +167,30 @@ input[type="date"],
 textarea {
     width: 100%;
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 0.5px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
+    background-color: #383939;
+    color: white;
 }
 
 textarea {
     height: 100px;
     resize: vertical;
+}
+
+#transcript {
+    height: 200px;
+    resize: vertical;
+    background-color: #383939;
+    color: white;
+    border: 0.5px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    padding: 8px;
+    width: 100%;
+    font-family: monospace;
+    line-height: 1.5;
 }
 
 .recording-controls {
@@ -238,11 +256,13 @@ button:disabled {
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
+    background-color: #383939;
+    color:white
 }
 
 .search-form button {
     padding: 8px 16px;
-    background-color: #9900ff;
+    background-color: #9f40df;
     color: white;
     border: none;
     border-radius: 4px;
@@ -274,13 +294,13 @@ button:disabled {
     padding: 2rem;
     border: 1px solid #ddd;
     border-radius: 10px;
-    background-color: #fff;
+    background-color: #383939;
     box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .transcript-box {
     white-space: pre-wrap;
-    background-color: #f9f9f9;
+    background-color: #383939;
     border: 1px solid #ccc;
     padding: 1rem;
     border-radius: 8px;
@@ -292,13 +312,72 @@ button:disabled {
     overflow-x: auto;
   }
 
-  #topWordsChart {
+#topWordsChart {
     width: 100%;
     max-width: 700px;
     height: 400px !important;
     margin-top: 1rem;
-    background-color: white;
+    background-color: #383939;
     padding: 1rem;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    margin-top: -1.5rem;
+    margin-bottom: 1.5rem;
+    color: #aaaaaa;
+    font-weight: normal;
+    font-style: italic;
+}
+
+.basic-info-w-edit-button{
+    display: flex;
+    justify-content: space-between;
+}
+
+input[type="file"] {
+    width: 100%;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    background-color: #383939;
+    color: #8a949d;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+    background-color: #5a5a5a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.2s;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+    background-color: #7004b9;
+}
+
+input[type="file"]::-moz-file-upload-button {
+    background-color: #9900ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.2s;
+}
+
+input[type="file"]::-moz-file-upload-button:hover {
+    background-color: #7004b9;
+}
+

@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Collection</title>
+    <title>Speech Analyzer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Audio Collection</h1>
+        <h1>Speech Analyzer</h1>
+        <h2 class="subtitle">Audio Collection</h2>
         <form method="POST" action="/" class="search-form">
             <input type="text" name="keyword" placeholder="Search title, speaker, or date..." autocomplete="off">
             <button type="submit">Search</button>
