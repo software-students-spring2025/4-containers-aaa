@@ -41,7 +41,7 @@ def get_transcript(audio_file: str):
         )
 
         response = deepgram.listen.rest.v("1").transcribe_file(payload, options)
-        result = response.results.channels[0].alternatives[0].transcript
+        result = response.results.channels[0].alternatives[0]
         return result.transcript
 
     except (OSError, IOError) as e:
