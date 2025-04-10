@@ -215,14 +215,15 @@ def trans_to_top_word(transcript):
     if not transcript or not isinstance(transcript, str):
         return []
     parsed = count_word_frequency(transcript)
-    print(parsed)
     filtered = [
-        [word, count] for word, count in parsed if count > 2 and word not in STOP_WORDS
+        [word, count]
+        for word, count in parsed
+        if count > 2 and word not in STOP_WORDS
     ]  # Filter out words that are 3 characters or less
-    print(filtered)
     ranked = rank_by_freq_desc(filtered)
     return ranked
 
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=6000)
+    # print(trans_to_top_word("The city skyline glittered at night, a million lights twinkling. He loved the city, the energy and the constant motion. Leaving the quiet park, he stepped back into the bustling city. The old house stood on a hill overlooking the valley. Inside the house, memories of laughter and warmth lingered. They decided to renovate the house, bringing it back to its former glory. The artist used a vibrant blue in her painting of the sea. The sky above was a clear, bright blue. She often felt a sense of peace when surrounded by the color blue."))
