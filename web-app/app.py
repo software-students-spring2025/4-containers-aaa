@@ -126,6 +126,8 @@ def view_entry(file_path):
     """
     try:
         entry = collection.find_one({"_id": file_path})
+        if entry is None:
+            return "Entry not found", 500
         return render_template("detail.html", entry=entry)
     except PyMongoError:
         return "Database error", 500
