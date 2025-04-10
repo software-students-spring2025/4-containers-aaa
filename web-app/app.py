@@ -9,6 +9,8 @@ from flask import Flask, render_template, request, redirect, url_for
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
+from collections import Counter
+import re
 import requests
 
 
@@ -192,6 +194,11 @@ def edit_entry(file_path):
                 "transcript": request.form["transcript"],
             }
             updated_fields["word_count"] = len(updated_fields["transcript"].split())
+            updated_fields["top_words"] = sorted(
+                Counter(re.findall(r"\b\w+\b", updated_fields["transcript"].lower())).items(),
+                key=lambda x: x[1],
+                reverse=True
+            )
             update_entry(file_path, updated_fields)
             return redirect(url_for("view_entry", file_path=file_path))
         return render_template("edit.html", entry=entry)
