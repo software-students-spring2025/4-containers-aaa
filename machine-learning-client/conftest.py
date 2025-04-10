@@ -21,6 +21,7 @@ def fixture_mock_audio_file():
     if os.path.exists(temp_file_path):
         os.unlink(temp_file_path)
 
+
 @pytest.fixture
 def test_client():
     """Create a test client for the app"""
