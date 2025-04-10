@@ -112,27 +112,35 @@ def test_rank_by_freq_desc():
 
 def test_trans_to_top_word():
     """Test trans_to_top_word function."""
-    assert trans_to_top_word("This is a sample sample transcript.") == [
-        ["sample", 2],
-        ["this", 1],
-        ["is", 1],
-        ["a", 1],
-        ["transcript", 1],
-    ]
-    assert trans_to_top_word(
-        "Trying to test this function with punctuation, like this: 'Hello, world!'"
-    ) == [
-        ["this", 2],
-        ["trying", 1],
-        ["to", 1],
-        ["test", 1],
-        ["function", 1],
-        ["with", 1],
-        ["punctuation", 1],
-        ["like", 1],
-        ["hello", 1],
-        ["world", 1],
-    ]
+    assert (
+        trans_to_top_word(
+            """The city skyline glittered at night, 
+            a million lights twinkling. He loved the city, 
+            the energy and the constant motion. 
+            Leaving the quiet park, he stepped back into the bustling city. 
+            The old house stood on a hill overlooking the valley. 
+            Inside the house, memories of laughter and warmth lingered. 
+            They decided to renovate the house, bringing it back to its former glory. 
+            The artist used a vibrant blue in her painting of the sea. 
+            The sky above was a clear, bright blue. 
+            She often felt a sense of peace when surrounded by the color blue."""
+        )
+        == [["city", 3], ["house", 3], ["blue", 3]]
+    )
+
+    assert (
+        trans_to_top_word(
+            """The rain fell steadily against the windowpane, a soft, persistent drumming. 
+            She watched the rain blur the world outside, each drop a tiny, fleeting moment.
+            The sound of the rain created a cozy atmosphere in the room. 
+            He loved to walk in the woods, the crunch of leaves under his feet. 
+            Every morning, he would walk along the familiar path, observing the changing seasons. 
+            A long walk in nature always cleared his head. The old tree stood tall and strong in 
+            the center of the field. Generations had gathered under the shade of the tree. 
+            They decided to plant another tree nearby, ensuring the legacy continued."""
+        )
+        == [["rain", 3], ["walk", 3], ["tree", 3]]
+    )
 
     # test with no input
     assert trans_to_top_word("") == []

@@ -34,6 +34,56 @@ collection = db["transcriptions"]
 app = Flask(__name__)
 
 
+STOP_WORDS = {
+    "the",
+    "is",
+    "in",
+    "and",
+    "of",
+    "a",
+    "to",
+    "with",
+    "that",
+    "for",
+    "on",
+    "as",
+    "are",
+    "at",
+    "by",
+    "an",
+    "be",
+    "this",
+    "it",
+    "from",
+    "or",
+    "was",
+    "we",
+    "you",
+    "your",
+    "they",
+    "he",
+    "she",
+    "but",
+    "not",
+    "have",
+    "has",
+    "had",
+    "can",
+    "will",
+    "do",
+    "does",
+    "did",
+    "so",
+    "if",
+    "then",
+    "them",
+    "these",
+    "those",
+    "there",
+    "here",
+}
+
+
 @app.route("/get-transcripts", methods=["POST"])
 def process_transcript_api():
     """
@@ -159,14 +209,16 @@ def count_word_frequency(transcript):
 def trans_to_top_word(transcript):
     """
     1. count_word_frequency(transcript)
-    2. rank_by_freq_desc(pairs)
+    2. filter out words with length <= 3
+    3. rank_by_freq_desc(pairs)
     """
-    if not transcript:
-        return []
-    if not isinstance(transcript, str):
+    if not transcript or not isinstance(transcript, str):
         return []
     parsed = count_word_frequency(transcript)
-    ranked = rank_by_freq_desc(parsed)
+    filtered = [
+        [word, count] for word, count in parsed if count > 2 and word not in STOP_WORDS
+    ]  # Filter out words that are 3 characters or less
+    ranked = rank_by_freq_desc(filtered)
     return ranked
 
 

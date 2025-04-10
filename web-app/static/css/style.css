@@ -279,15 +279,26 @@ button:disabled {
 }
 
 .transcript-box {
-    white-space: pre-wrap; /* Allows wrapping of long text */
-    background-color: #f9f9f9; /* Soft background for contrast */
-    border: 1px solid #ccc; /* Light border */
-    padding: 1rem; /* Internal spacing */
-    border-radius: 8px; /* Rounded corners */
-    font-family: monospace; /* Consistent with transcript style */
+    white-space: pre-wrap;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: monospace;
     font-size: 0.95rem;
-    line-height: 1.5; /* Better readability */
-    margin: 1rem 0; /* Spacing above and below */
-    max-width: 100%; /* Responsive for small screens */
-    overflow-x: auto; /* Scroll if long content overflows */
+    line-height: 1.5;
+    margin: 1rem 0;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  #topWordsChart {
+    width: 100%;
+    max-width: 700px;
+    height: 400px !important;
+    margin-top: 1rem;
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }

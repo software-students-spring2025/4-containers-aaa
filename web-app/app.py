@@ -38,6 +38,55 @@ app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = os.path.join("static", "uploaded_audio")
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50MB max file size
 
+STOP_WORDS = {
+    "the",
+    "is",
+    "in",
+    "and",
+    "of",
+    "a",
+    "to",
+    "with",
+    "that",
+    "for",
+    "on",
+    "as",
+    "are",
+    "at",
+    "by",
+    "an",
+    "be",
+    "this",
+    "it",
+    "from",
+    "or",
+    "was",
+    "we",
+    "you",
+    "your",
+    "they",
+    "he",
+    "she",
+    "but",
+    "not",
+    "have",
+    "has",
+    "had",
+    "can",
+    "will",
+    "do",
+    "does",
+    "did",
+    "so",
+    "if",
+    "then",
+    "them",
+    "these",
+    "those",
+    "there",
+    "here",
+}
+
 # Ensure upload directory exists
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
@@ -156,17 +205,20 @@ def upload():
                 "context": description,
             }
 
+            # Try to send to ML for transcript
+            try:
+                print(f"Sending file to ML client: {filepath}")
+                ml_response = trigger_ml(filepath)
+                transcript = ml_response.get("transcript", "")
+                metadata["transcript"] = transcript
+            except requests.exceptions.RequestException as e:
+                print("Error from ML:", e)
+                metadata["transcript"] = ""
+
             # Save metadata using upload_entry function
             if not upload_entry(filepath, metadata):
                 print("Error uploading entry to MongoDB")
                 return "Error saving metadata to database", 500
-
-            # Try to send to ML for transcript
-            try:
-                print(f"Sending file to ML client: {filepath}")
-                trigger_ml(filepath)
-            except requests.exceptions.RequestException as e:
-                print("Error from ML", e)
 
         except (OSError, IOError) as e:
             print("Error during data processing:", e)
@@ -195,9 +247,13 @@ def edit_entry(file_path):
             }
             updated_fields["word_count"] = len(updated_fields["transcript"].split())
             updated_fields["top_words"] = sorted(
-                Counter(
-                    re.findall(r"\b\w+\b", updated_fields["transcript"].lower())
-                ).items(),
+                [
+                    (word, count)
+                    for word, count in Counter(
+                        re.findall(r"\b\w+\b", updated_fields["transcript"].lower())
+                    ).items()
+                    if len(word) > 2 and word not in STOP_WORDS
+                ],
                 key=lambda x: x[1],
                 reverse=True,
             )
@@ -227,6 +283,24 @@ def upload_entry(file_path, field_value_dict=None):
     if field_value_dict is None:
         field_value_dict = {}
 
+    transcript = field_value_dict.get("transcript", "")
+    word_count = len(transcript.split())
+
+    # Filter and rank top words (longer than 3 characters)
+    top_words = sorted(
+        [
+            (word, count)
+            for word, count in Counter(
+                re.findall(r"\b\w+\b", transcript.lower())
+            ).items()
+            if len(word) > 3 and word not in STOP_WORDS
+        ],
+        key=lambda x: x[1],
+        reverse=True,
+    )
+    # store computed values into dic
+    field_value_dict["word_count"] = word_count
+    field_value_dict["top_words"] = top_words
     # Create a new entry with default values or values from the dictionary
     new_entry = {
         "_id": file_path,
@@ -235,8 +309,8 @@ def upload_entry(file_path, field_value_dict=None):
         "date": field_value_dict.get("date", "N/A"),
         "context": field_value_dict.get("context", "No context provided"),
         "transcript": field_value_dict.get("transcript", ""),
-        "word_count": field_value_dict.get("word_count", 0),
-        "top_words": field_value_dict.get("top_words", []),
+        "word_count": word_count,
+        "top_words": top_words,
         "audio_file": file_path,
         "created_at": datetime.now(timezone.utc),
     }
@@ -326,17 +400,6 @@ def update_entry(file_path, update_fields):
         return result.modified_count > 0
     except PyMongoError:
         return False
-
-
-def get_transcript(file_path):
-    """
-    get transcript from mongoDB by _id
-    """
-    entry = collection.find_one({"_id": file_path})
-    transcript = entry["transcript"]
-    if entry and "transcript" in entry:
-        return transcript
-    return ""
 
 
 if __name__ == "__main__":
