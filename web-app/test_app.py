@@ -316,30 +316,29 @@ def test_edit_entry():
     assert not edit_entry("test/audio.mp3")
 
 
-# def test_view_entry():
-#     """Test the view_entry route."""
-#     with patch("app.collection.find_one") as mock_find_one:
-#         mock_find_one.return_value = {
-#             "_id": "test/audio.mp3",
-#             "title": "Test Entry",
-#             "speaker": "Test Speaker",
-#             "date": "2025-04-01",
-#             "context": "Test context",
-#             "transcript": "This is a test transcript",
-#             "word_count": 6,
-#             "top_words": ["test", "transcript"],
-#             "audio_file": "test/audio.mp3",
-#             "created_at": "2025-04-01T12:00:00Z",
-#         }
+def test_view_entry():
+    """Test the view_entry route."""
+    with patch("app.collection.find_one", return_value = {
+            "_id": "test/audio.mp3",
+            "title": "Test Entry",
+            "speaker": "Test Speaker",
+            "date": "2025-04-01",
+            "context": "Test context",
+            "transcript": "This is a test transcript",
+            "word_count": 6,
+            "top_words": ["test", "transcript"],
+            "audio_file": "test/audio.mp3",
+            "created_at": "2025-04-01T12:00:00Z",
+        }) as mock_find_one:
 
-#         response = app.test_client().get("/entry/test/audio.mp3")
-#         assert response.status_code == 200
-#         assert b"Test Entry" in response.data
+        response = app.test_client().get("/entry/test/audio.mp3")
+        assert response.status_code == 200
+        assert b"Test Entry" in response.data
 
-#     # Test when entry is not found
-#     mock_find_one.return_value = None
-#     response = app.test_client().get("/entry/nonexistent.mp3")
-#     assert response.status_code == 200  # or whatever your app returns for not found
+    # Test when entry is not found
+    mock_find_one.return_value = None
+    response = app.test_client().get("/entry/nonexistent.mp3")
+    assert response.status_code == 200  # or whatever your app returns for not found
 
 
 def test_create():
