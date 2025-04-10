@@ -3,10 +3,7 @@
 import os
 import pytest
 
-# from unittest.mock import patch, MagicMock
-# import unittest
-# from deepgram import DeepgramClient, PrerecordedOptions
-# from ml_client import get_transcript
+from unittest.mock import patch, MagicMock
 from app import (
     app,
     get_word_count,
@@ -162,42 +159,17 @@ def test_client():
     os.rmdir(app.config["UPLOAD_FOLDER"])
 
 
-# @patch('ml_client.get_transcript')
-# @patch('os.path.exists')
-# def test_index_route(self, test_client):
-#     """Test index route"""
+def test_processs_transcript_api(test_client):
+    """Test index route"""
 
-#     with patch("os.path.exists") as mock_exists:
-#         mock_exists.return_value = True
-#         with patch("ml_client.get_transcript") as mock_get_transcript:
-#             mock_get_transcript.return_value = "This is a sample transcript."
+    with patch("os.path.exists") as mock_exists:
+        mock_exists.return_value = True
+        with patch("ml_client.get_transcript") as mock_get_transcript:
+            mock_get_transcript.return_value = "This is a sample transcript."
 
-#             response = test_client.post("/", json={"audio_file_path": "test.mp3"})
-#             mock_get_transcript.assert_called_once()
-#             mock_get_transcript.assert_called_once_with(os.path.join
-# ("/app/uploaded_audio", "test.mp3"))
-
-#             filepath = os.path.join("/app/uploaded_audio", "test.mp3")
-#             print(vars(response))
-#             print(vars(response.post()))
-#             print()
-#             print(vars(mock_get_transcript))
-#             print(vars(mock_exists))
-
-#             # assert response.data ["word_count"]== 5
-
-#             assert response == 200
-#             # assert response.data == {"transcript": SAMPLE_TRANSCRIPT, "top_words":
-# [['this', 1], ['is', 1], ['a', 1], ['sample', 1], ['transcript', 1]], "word_count": 5}
-
-# def test_process_transcript_api():
-#     """Test process_transcript_api function."""
-#     response = app.test_client().post("/get-transcript")
-
-#     print(response.data)
-#     assert response.status_code == 400
-#     # with patch("os.path.exists") as mock_exists:
-#     #     mock_exists.return_value = True
-
-#     #     with patch("ml_client.get_transcript") as mock_get_transcript:
-#     #         mock_get_transcript.return_value = SAMPLE_TRANSCRIPT
+            response = test_client.post(
+                "/get-transcripts", json={"audio_file_path": "test.mp3"}
+            )
+            mock_exists.assert_called_once()
+            # Check the status code from the response object
+            assert response.status_code == 200
