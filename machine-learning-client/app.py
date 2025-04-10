@@ -215,11 +215,11 @@ def trans_to_top_word(transcript):
     if not transcript or not isinstance(transcript, str):
         return []
     parsed = count_word_frequency(transcript)
+    print(parsed)
     filtered = [
-        (word, count)
-        for word, count in parsed
-        if len(word) > 3 and word not in STOP_WORDS
+        [word, count] for word, count in parsed if count > 2 and word not in STOP_WORDS
     ]  # Filter out words that are 3 characters or less
+    print(filtered)
     ranked = rank_by_freq_desc(filtered)
     return ranked
 
