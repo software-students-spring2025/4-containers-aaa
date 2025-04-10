@@ -279,11 +279,12 @@ def test_trigger_ml_json_response(mock_post):
 
 @patch("app.collection.update_one")
 @patch("app.update_entry")
-def test_edit_entry(mock_finds, mock_updates):
+@patch("app.collection.find_one")
+def test_edit_entry(mock_find_one, mock_update_entry_inner, mock_update_one):
     """Test the edit_entry function."""
 
-    with patch("app.collection.find_one") as mock_find:
-        mock_find.return_value.sort.return_value = [
+    with patch("app.collection.find_one") as mock_find_one:
+        mock_find_one.return_value.sort.return_value = [
             {
                 "_id": "test/audio.mp3",
                 "title": "Test Entry",
@@ -298,13 +299,13 @@ def test_edit_entry(mock_finds, mock_updates):
             }
         ]
 
-        with patch("app.update_entry") as mock_update:
-            mock_update.return_value = 1
+        with patch("app.update_entry") as mock_update_entry_inner:
+            mock_update_entry_inner.return_value = 1
             response = app.test_client().get("/entry/edit")
             assert response.status_code == 200
             # assert b"Test Entry" in response.data
 
 
-    mock_update.return_value = MagicMock(modified_count=0)
+    mock_update_one.return_value = MagicMock(modified_count=0)
     # result = edit_entry("test/audio.mp3", {"title": "No change"})
     assert not edit_entry("test/audio.mp3", {"title": "No change"})
