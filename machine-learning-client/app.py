@@ -226,4 +226,4 @@ def trans_to_top_word(transcript):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=6000)
-    # print(trans_to_top_word("The city skyline glittered at night, a million lights twinkling. He loved the city, the energy and the constant motion. Leaving the quiet park, he stepped back into the bustling city. The old house stood on a hill overlooking the valley. Inside the house, memories of laughter and warmth lingered. They decided to renovate the house, bringing it back to its former glory. The artist used a vibrant blue in her painting of the sea. The sky above was a clear, bright blue. She often felt a sense of peace when surrounded by the color blue."))
+   
