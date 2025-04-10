@@ -16,7 +16,6 @@ from app import (
     delete_entry,
     trigger_ml,
     edit_entry,
-    view_entry,
 )
 
 
@@ -332,19 +331,18 @@ def test_view_entry():
             "audio_file": "test/audio.mp3",
             "created_at": "2025-04-01T12:00:00Z",
         }
-        
+
         response = app.test_client().get("/entry/test/audio.mp3")
         assert response.status_code == 200
         assert b"Test Entry" in response.data
-        
+
     # Test when entry is not found
     mock_find_one.return_value = None
     response = app.test_client().get("/entry/nonexistent.mp3")
     assert response.status_code == 200  # or whatever your app returns for not found
 
+
 def test_create():
     """Test the create function."""
     response = app.test_client().get("/create")
     assert response.status_code == 200
-
-
