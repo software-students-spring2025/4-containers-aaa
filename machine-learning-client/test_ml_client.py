@@ -2,11 +2,13 @@
 
 import os
 from unittest.mock import patch
+from pymongo.errors import PyMongoError
 from app import (
     get_word_count,
     rank_by_freq_desc,
     trans_to_top_word,
     count_word_frequency,
+    process_transcript_api
 )
 
 # Sample test data
@@ -173,3 +175,10 @@ def test_processs_transcript_api(test_client):
                     mock_exists.assert_called_once()
                     # Check the status code from the response object
                     assert response.status_code == 200
+
+                    mock_update.side_effect = PyMongoError()
+                    response = test_client.post(
+                        "/get-transcripts", json={"audio_file_path": "test.mp3"}
+                    )
+                    assert response.status_code == 500
+
