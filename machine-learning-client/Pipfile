@@ -13,6 +13,7 @@ pymongo = "*"
 flask = "*"
 werkzeug = "*"
 coverage = "*"
+tomli = "*"
 
 [dev-packages]
 pytest = "*"
