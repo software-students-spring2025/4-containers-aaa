@@ -4,13 +4,13 @@ This file contains the routes for the web application.
 """
 
 import os
+import re
 from datetime import datetime, timezone
+from collections import Counter
 from flask import Flask, render_template, request, redirect, url_for
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
-from collections import Counter
-import re
 import requests
 
 
