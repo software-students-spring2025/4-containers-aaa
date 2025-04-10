@@ -277,8 +277,6 @@ def test_trigger_ml_json_response(mock_post):
         assert result == test_data, f"Failed for test data: {test_data}"
 
 
-# @patch("app.collection.update_one")
-# @patch("app.update_entry")
 def test_edit_entry():
     """Test the edit_entry function."""
 
@@ -302,9 +300,7 @@ def test_edit_entry():
             mock_update.return_value = 1
             response = app.test_client().get("/entry/edit")
             assert response.status_code == 200
-            # assert b"Test Entry" in response.data
 
 
     mock_update.return_value = MagicMock(modified_count=0)
-    # result = edit_entry("test/audio.mp3", {"title": "No change"})
     assert not edit_entry("test/audio.mp3", {"title": "No change"})
