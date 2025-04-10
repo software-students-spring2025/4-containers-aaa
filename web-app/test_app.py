@@ -282,7 +282,6 @@ def test_trigger_ml_json_response(mock_post):
 def test_edit_entry(mock_find, mock_update):
     """Test the edit_entry function."""
 
-
     with patch("app.collection.find_one") as mock_find:
         mock_find.return_value.sort.return_value = [
             {
