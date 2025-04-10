@@ -1,13 +1,14 @@
-"""Test the ml_client module for machine-learning-client"""
+"""Test for machine-learning-client"""
 
 import os
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock, mock_open
 from pymongo.errors import PyMongoError
 from app import (
     get_word_count,
     rank_by_freq_desc,
     trans_to_top_word,
     count_word_frequency,
+    get_transcript,
 )
 
 # Sample test data
@@ -152,11 +153,11 @@ def test_trans_to_top_word():
 
 
 def test_processs_transcript_api(test_client):
-    """Test index route"""
+    """Test /get-transcript route"""
 
     with patch("os.path.exists") as mock_exists:
         mock_exists.return_value = True
-        with patch("ml_client.get_transcript") as mock_get_transcript:
+        with patch("app.get_transcript") as mock_get_transcript:
             mock_get_transcript.return_value = "This is a sample transcript."
             with patch("app.collection.find_one") as mock_find:
                 mock_find.return_value.sort.return_value = [
@@ -180,6 +181,9 @@ def test_processs_transcript_api(test_client):
                     )
 
                     mock_exists.assert_called_once()
+                    mock_update.assert_called_once()
+                    mock_get_transcript.assert_called_once()
+                    mock_find.assert_called_once()
                     # Check the status code from the response object
                     assert response.status_code == 200
 
@@ -188,3 +192,113 @@ def test_processs_transcript_api(test_client):
                         "/get-transcripts", json={"audio_file_path": "test.mp3"}
                     )
                     assert response.status_code == 500
+
+
+def test_get_transcript_success():
+    """Test successful transcription of an audio file."""
+    # Mock audio file content
+    mock_audio_content = b"Mock audio file content"
+    # Mock the Deepgram API response
+    mock_response = MagicMock()
+    mock_response.results.channels[0].alternatives[
+        0
+    ].transcript = "This is a test transcript"
+
+    # Mock the Deepgram client
+    mock_deepgram = MagicMock()
+    mock_deepgram.listen.rest.v.return_value.transcribe_file.return_value = (
+        mock_response
+    )
+
+    # Mock the DeepgramClient constructor
+    with patch("app.DeepgramClient", return_value=mock_deepgram):
+        # Mock the file open operation
+        with patch("builtins.open", mock_open(read_data=mock_audio_content)):
+            # Call the function
+            result = get_transcript("test_audio.mp3")
+
+            # Verify the result
+            assert result == "This is a test transcript"
+
+            # Verify the Deepgram client was called correctly
+            mock_deepgram.listen.rest.v.assert_called_once_with("1")
+            mock_deepgram.listen.rest.v.return_value.transcribe_file.assert_called_once()
+
+
+def test_get_transcript_file_error():
+    """Test handling of file operation errors."""
+    # Mock the DeepgramClient constructor
+    with patch("app.DeepgramClient"):
+        # Mock the file open operation to raise an error
+        with patch("builtins.open", side_effect=OSError("File not found")):
+            # Call the function
+            result = get_transcript("nonexistent_audio.mp3")
+
+            # Verify the result contains the error message
+            assert "File operation error" in result
+
+
+def test_get_transcript_api_error():
+    """Test handling of API response format errors."""
+    # Mock audio file content
+    mock_audio_content = b"Mock audio file content"
+
+    # Mock the Deepgram client to raise a KeyError
+    mock_deepgram = MagicMock()
+    mock_deepgram.listen.rest.v.return_value.transcribe_file.side_effect = KeyError(
+        "Missing key in response"
+    )
+
+    # Mock the DeepgramClient constructor
+    with patch("app.DeepgramClient", return_value=mock_deepgram):
+        # Mock the file open operation
+        with patch("builtins.open", mock_open(read_data=mock_audio_content)):
+            # Call the function
+            result = get_transcript("test_audio.mp3")
+
+            # Verify the result contains the error message
+            assert "API response format error" in result
+
+
+def test_get_transcript_runtime_error():
+    """Test handling of runtime errors."""
+    # Mock audio file content
+    mock_audio_content = b"Mock audio file content"
+
+    # Mock the Deepgram client to raise a RuntimeError
+    mock_deepgram = MagicMock()
+    mock_deepgram.listen.rest.v.return_value.transcribe_file.side_effect = RuntimeError(
+        "Runtime error occurred"
+    )
+
+    # Mock the DeepgramClient constructor
+    with patch("app.DeepgramClient", return_value=mock_deepgram):
+        # Mock the file open operation
+        with patch("builtins.open", mock_open(read_data=mock_audio_content)):
+            # Call the function
+            result = get_transcript("test_audio.mp3")
+
+            # Verify the result contains the error message
+            assert "runtime error" in result
+
+
+def test_get_transcript_index_error():
+    """Test handling of index errors."""
+    # Mock audio file content
+    mock_audio_content = b"Mock audio file content"
+
+    # Mock the Deepgram client to raise an IndexError
+    mock_deepgram = MagicMock()
+    mock_deepgram.listen.rest.v.return_value.transcribe_file.side_effect = IndexError(
+        "Index out of range"
+    )
+
+    # Mock the DeepgramClient constructor
+    with patch("app.DeepgramClient", return_value=mock_deepgram):
+        # Mock the file open operation
+        with patch("builtins.open", mock_open(read_data=mock_audio_content)):
+            # Call the function
+            result = get_transcript("test_audio.mp3")
+
+            # Verify the result contains the error message
+            assert "index error" in result

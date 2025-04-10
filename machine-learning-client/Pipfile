@@ -11,7 +11,9 @@ python-dotenv = "*"
 pytest = "*"
 pymongo = "*"
 flask = "*"
-Werkzeug = "*"
+werkzeug = "*"
+coverage = "*"
+tomli = "*"
 
 [dev-packages]
 pytest = "*"
