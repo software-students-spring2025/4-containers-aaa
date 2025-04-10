@@ -1,5 +1,5 @@
-![Lint-free](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/lint.yml/badge.svg)
-![CI](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/ci.yml/badge.svg)
+![Lint](https://github.com/software-students-spring2025/4-containers-aaa/actions/workflows/lint.yml/badge.svg)
+![CI](https://github.com/software-students-spring2025/4-containers-aaa/actions/workflows/ci.yml/badge.svg)
 
 # Containerized App Exercise
 
