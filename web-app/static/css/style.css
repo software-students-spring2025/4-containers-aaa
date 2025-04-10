@@ -50,7 +50,7 @@ body {
     right: 20px;
     width: 50px;
     height: 50px;
-    background-color: #9900ff;
+    background-color: #9f40df;
     color: white;
     border-radius: 50%;
     display: flex;
@@ -65,6 +65,7 @@ body {
 
 .add-button:hover {
     transform: scale(1.1);
+    background-color: #7004b9;
 }
 
 .entry-list {
@@ -123,7 +124,7 @@ body {
 }
 
 .view-button {
-    background-color: #9900ff;
+    background-color: #9f40df;
 }
 
 .view-button:hover {
@@ -131,7 +132,7 @@ body {
 }
 
 .delete-button {
-    background-color: #f60be2;
+    background-color: #ca476c;
 }
 
 .delete-button:hover {
@@ -148,7 +149,7 @@ body {
 
 h1 {
     margin-bottom: 30px;
-    color: #9900ff;
+    color: #dbacfb;
 }
 
 .form-group {
@@ -261,7 +262,7 @@ button:disabled {
 
 .search-form button {
     padding: 8px 16px;
-    background-color: #9900ff;
+    background-color: #9f40df;
     color: white;
     border: none;
     border-radius: 4px;
