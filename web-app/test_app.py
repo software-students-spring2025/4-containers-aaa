@@ -302,4 +302,4 @@ def test_edit_entry():
             assert response.status_code == 200
 
     mock_update.return_value = MagicMock(modified_count=0)
-    assert not edit_entry("test/audio.mp3", {"title": "No change"})
+    assert not edit_entry("test/audio.mp3")
