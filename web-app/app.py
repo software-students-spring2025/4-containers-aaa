@@ -252,7 +252,7 @@ def edit_entry(file_path):
                     for word, count in Counter(
                         re.findall(r"\b\w+\b", updated_fields["transcript"].lower())
                     ).items()
-                    if len(word) > 3 and word not in STOP_WORDS
+                    if len(word) > 2 and word not in STOP_WORDS
                 ],
                 key=lambda x: x[1],
                 reverse=True,
@@ -400,17 +400,6 @@ def update_entry(file_path, update_fields):
         return result.modified_count > 0
     except PyMongoError:
         return False
-
-
-def get_transcript(file_path):
-    """
-    get transcript from mongoDB by _id
-    """
-    entry = collection.find_one({"_id": file_path})
-    transcript = entry["transcript"]
-    if entry and "transcript" in entry:
-        return transcript
-    return ""
 
 
 if __name__ == "__main__":

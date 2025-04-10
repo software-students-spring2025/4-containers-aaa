@@ -280,26 +280,37 @@ def test_trigger_ml_json_response(mock_post):
 def test_edit_entry():
     """Test the edit_entry function."""
 
-    with patch("app.collection.find_one") as mock_find:
-        mock_find.return_value.sort.return_value = [
-            {
-                "_id": "test/audio.mp3",
-                "title": "Test Entry",
-                "speaker": "Test Speaker",
-                "date": "2025-04-01",
-                "context": "Test context",
-                "transcript": "This is a test transcript",
-                "word_count": 6,
-                "top_words": ["test", "transcript"],
-                "audio_file": "test/audio.mp3",
-                "created_at": "2025-04-01T12:00:00Z",
-            }
-        ]
+    with patch(
+        "app.collection.find_one",
+        return_value={
+            "_id": "test/audio.mp3",
+            "title": "Test Entry",
+            "speaker": "Test Speaker",
+            "date": "2025-04-01",
+            "context": "Test context",
+            "transcript": """The rain fell steadily against the windowpane, a soft, persistent drumming. 
+            She watched the rain blur the world outside, each drop a tiny, fleeting moment.
+            The sound of the rain created a cozy atmosphere in the room. 
+            He loved to walk in the woods, the crunch of leaves under his feet. 
+            Every morning, he would walk along the familiar path, observing the changing seasons. 
+            A long walk in nature always cleared his head. The old tree stood tall and strong in 
+            the center of the field. Generations had gathered under the shade of the tree. 
+            They decided to plant another tree nearby, ensuring the legacy continued.""",
+            "word_count": 6,
+            "top_words": ["test", "transcript"],
+            "audio_file": "test/audio.mp3",
+            "created_at": "2025-04-01T12:00:00Z",
+        },
+    ) as mock_find:
 
-        with patch("app.update_entry") as mock_update:
-            mock_update.return_value = 1
-            response = app.test_client().get("/entry/edit")
-            assert response.status_code == 200
+        with patch(
+            "app.sorted", return_value=[["rain", 3], ["walk", 3], ["tree", 3]]
+        ) as mock_sort:
+            with patch("app.update_entry", return_value=1) as mock_update:
+                response = app.test_client().get("/entry/path/edit")
+                assert response.status_code == 200
 
+    mock_find.return_value = {}
+    mock_sort.return_value = False
     mock_update.return_value = MagicMock(modified_count=0)
     assert not edit_entry("test/audio.mp3")
