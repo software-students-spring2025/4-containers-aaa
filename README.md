@@ -28,7 +28,7 @@ This is a full-stack, containerized web application that allows users to upload 
 - `docker-compose.yml`: Service orchestration
 - `.env`: Runtime environment variables
 
-## Getting Started
+## Getting Started with Docker
 
 ### 1. Clone the Repository
 
@@ -47,6 +47,7 @@ MONGO_INITDB_ROOT_PASSWORD=your_password
 MONGO_DB_NAME=voice_data
 MONGO_PORT=27017
 MONGO_HOST=localhost
+MODE=docker
 
 DEEPGRAM_API_KEY=your_deepgram_api_key
 ```
@@ -90,4 +91,58 @@ docker logs web-app
 
 ```bash
 docker logs ml-client
+```
+
+## Getting Started in Local Environment with Docker MongoDB
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/4-containers-aaa.git
+cd 4-containers-aaa
+```
+
+### 2. Create Environment Configuration
+
+Create a `.env` file in the root directory of the project:
+
+```env
+MONGO_INITDB_ROOT_USERNAME=your_username
+MONGO_INITDB_ROOT_PASSWORD=your_password
+MONGO_DB_NAME=voice_data
+MONGO_PORT=27017
+MONGO_HOST=localhost
+MODE=local
+
+DEEPGRAM_API_KEY=your_deepgram_api_key
+```
+
+### 3. Start the Application
+
+To activate MongoDB in Docker (from the root of the project):
+
+```bash
+docker-compose up -d mongodb
+```
+
+To activate machine learning client (from the root of the project):
+
+```bash
+cd machine-learning-client
+python app.py
+```
+
+To activate web application (from the root of the project):
+
+```bash
+cd web-app
+python app.py
+```
+
+### 4. Access the Web App
+
+Once all three subsytems of the project are up, go to:
+
+```
+http://localhost:5000
 ```
