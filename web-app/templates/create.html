@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+{% extends "base.html" %}   
+{% block content %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,44 +13,68 @@
         <h1>Create New Audio</h1>
         <form id="audioForm" class="create-form">
             <div class="form-group">
-                <label for="title">Title:</label>
+                <label for="title">Title</label>
                 <input type="text" id="title" name="title" required>
             </div>
             
             <div class="form-group">
-                <label for="speaker">Speaker:</label>
+                <label for="speaker">Speaker</label>
                 <input type="text" id="speaker" name="speaker" required>
             </div>
             
             <div class="form-group">
-                <label for="date">Date:</label>
+                <label for="date">Date</label>
                 <input type="date" id="date" name="date" required>
             </div>
             
             <div class="form-group">
-                <label for="description">Description:</label>
+                <label for="description">Description</label>
                 <textarea id="description" name="description" required></textarea>
             </div>
             
-            <div class="form-group">
-                <label for="audioFile">Upload Audio File:</label>
-                <input type="file" id="audioFile" name="audio" accept="audio/*">
+            <p>Audio File</p>
+            <div class="audio-file-group">
+                <div class="form-group">
+                    <!-- <label for="audioFile">Upload Audio File</label> -->
+                    <input type="file" id="audioFile" name="audio" accept="audio/*">
+                </div>
+                
+                <div class="form-group">
+                    <!-- <label>Record Audio</label> -->
+                    <div class="recording-controls">
+                        <div class="recording-controls-buttons">
+                            <button type="button" id="startRecord"><img src="{{ url_for('static', filename='images/mic-icon.png') }}" alt="Record Audio"></button>
+                        </div>
+                        <div class="recording-controls-buttons">
+                            <button type="button" id="stopRecord" disabled><img src="{{ url_for('static', filename='images/stop-recording-icon.png') }}" alt="Stop Recording"></button>
+                        </div>
+                    </div>
+                    <div class="recording-animation" id="recordingAnimation">
+                        <div id="bars">
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                        </div>
+                    </div>
+                    <audio id="audioPreview" controls style="display: none;"></audio>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label>Record Audio:</label>
-                <div class="recording-controls">
-                    <button type="button" id="startRecord">Start Recording</button>
-                    <button type="button" id="stopRecord" disabled>Stop Recording</button>
-                </div>
-                <audio id="audioPreview" controls style="display: none;"></audio>
-            </div>
             
             <div class="form-actions">
                 <button type="submit">Save</button>
                 <a href="{{ url_for('index') }}" class="cancel-button">Cancel</a>
             </div>
         </form>
+        
+
     </div>
 
     <script>
@@ -59,13 +85,14 @@
         const stopButton = document.getElementById('stopRecord');
         const audioFile = document.getElementById('audioFile');
         const form = document.getElementById('audioForm');
+        const recordingAnimation = document.getElementById('recordingAnimation');
 
         startButton.addEventListener('click', async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
-
+                
                 // Record the audio
                 mediaRecorder.ondataavailable = (event) => {
                     audioChunks.push(event.data); // audioChunks is an array of audio data
@@ -90,6 +117,7 @@
                 mediaRecorder.start();
                 startButton.disabled = true;
                 stopButton.disabled = false;
+                recordingAnimation.style.display = 'block';
             } catch (error) {
                 console.error('Error accessing microphone:', error);
                 alert('Error accessing microphone. Please ensure you have granted microphone permissions.');
@@ -98,6 +126,7 @@
 
         stopButton.addEventListener('click', () => {
             mediaRecorder.stop();
+            recordingAnimation.style.display = 'none';
             startButton.disabled = false;
             stopButton.disabled = true;
         });
@@ -127,3 +156,4 @@
     </script>
 </body>
 </html> 
+{% endblock %}

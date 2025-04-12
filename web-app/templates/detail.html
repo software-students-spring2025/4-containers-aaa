@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+{% extends "base.html" %}   
+{% block content %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -11,13 +12,15 @@
     <h1>{{ entry.title }}</h1>
     <div class = "basic-info-w-edit-button">
       <div class = "basic-info">
-        <p><strong>Speaker:</strong> {{ entry.speaker }}</p>
-        <p><strong>Date:</strong> {{ entry.date }}</p>
+        <p><strong>Speaker: </strong>{{ entry.speaker }}</p>
+        <p><strong>Date: </strong>{{ entry.date }}</p>
         <p><strong>Description:</strong> {{ entry.context }}</p>
       </div>
       <div class="edit-container">
         <div style="margin-top: 1.5rem;">
-          <a href="{{ url_for('edit_entry', file_path=entry._id) }}" class="cancel-button">✏️ Edit Entry</a>
+          <a href="{{ url_for('edit_entry', file_path=entry._id) }}" class="edit-button">
+            <img src="{{ url_for('static', filename='images/edit-icon.png') }}" alt="Edit" height="27" width="27">
+          </a>
         </div>
       </div>
     </div>
@@ -29,20 +32,21 @@
 
     {% if entry.top_words %}
       <p><strong>Most Frequently Used 10 Words:</strong></p>
-      <div style="max-width: 600px; height: 400px; margin: 0 auto;">
+      <div id="top-words-container">
         <canvas id="topWordsChart"></canvas>
+        <p style="font-style: italic;" id="top-words-note">(Stop words and words appeared less than twice are removed here.)</p>
       </div>
     {% else %}
       <p><strong>Most Frequently Used 10 Words:</strong> <em>No frequent words available.</em></p>
     {% endif %}
-    <p style="font-style: italic;">(Stop words and words appeared less than twice are removed here.)</p>
-
+    
     {% if entry.audio_file %}
-      <p style="margin-top: 2rem;"><strong>Audio:</strong></p>
-      <audio controls style="width: 100%; margin-top: 1px;">
-        <source src="{{ url_for('static', filename='uploaded_audio/' + entry.audio_file.split('/')[-1]) }}" type="audio/mpeg">
-        Your browser does not support the audio tag.
-      </audio>
+      <p style="margin-top: 2rem;"><strong>Audio:</strong>
+        <audio controls style="width: 100%;">
+          <source src="{{ url_for('static', filename='uploaded_audio/' + entry.audio_file.split('/')[-1]) }}" type="audio/mpeg">
+          Your browser does not support the audio tag.
+        </audio>
+      </p>
     {% endif %}
 
     <div style="margin-top: 1.5rem;">
@@ -68,7 +72,7 @@
           label: 'Top Words',
           data: counts,
           backgroundColor: 'rgba(204, 153, 255, 0.7)', 
-          borderWidth: 1,
+          borderWidth: 0.5,
           borderRadius: 5
         }]
       },
@@ -109,3 +113,4 @@
   {% endif %}
 </body>
 </html>
+{% endblock %}

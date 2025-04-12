@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+{% extends "base.html" %}   
+{% block content %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,9 +13,9 @@
         <h2 class="subtitle">Audio Collection</h2>
         <form method="POST" action="/" class="search-form">
             <input type="text" name="keyword" placeholder="Search title, speaker, or date..." autocomplete="off">
-            <button type="submit">Search</button>
+            <button type="submit"><img src="{{ url_for('static', filename='images/search-icon.png') }}" alt="Search" height="27" width="27"></button>
             {% if keyword %}
-            <a href="/" class="clear-button">Clear</a>
+            <a href="/" class="clear-button">X</a>
             {% endif %}
         </form>
         <a href="{{ url_for('create') }}" class="add-button">+</a>
@@ -23,15 +24,17 @@
         <ul class = "entry-list">
             {% for entry in entries %}
             <li class="entry-item">
-                <div class="entry-info">
-                    <h3>{{ entry.title }}</h3>
-                    <p><strong>Speaker:</strong> {{ entry.speaker }}</p>
-                    <p><strong>Date:</strong> {{ entry.date }}</p>
-                </div>
+                <div class="delete-animation"></div>
+                <a href="{{ url_for('view_entry', file_path=entry['_id']) }}" class="entry-link">
+                    <div class="entry-info">
+                        <h3>{{ entry.title }}</h3>
+                        <p><strong>Speaker:</strong> {{ entry.speaker }}</p>
+                        <p><strong>Date:</strong> {{ entry.date }}</p>
+                    </div>
+                </a>
                 <div class="entry-actions">
-                    <a href="{{ url_for('view_entry', file_path=entry['_id']) }}" class="view-button">View</a>
-                    <form action="{{ url_for('delete_route', file_path=entry['_id']) }}" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this entry?');">
-                        <button type="submit" class="delete-button">Delete</button>
+                    <form action="{{ url_for('delete_route', file_path=entry['_id']) }}" method="POST" class="delete-form" onsubmit="return handleDelete(event, this);">
+                        <button type="submit" class="delete-button">+</button>
                     </form>
                 </div>
             </li>
@@ -41,5 +44,36 @@
             <p class= "no-entry" >No entries found.</p>
         {% endif %} 
     </div>
+
+<script>
+function handleDelete(event, form) {
+    event.preventDefault();
+    
+    // Get the entry item
+    const entryItem = form.closest('.entry-item');
+    
+    // Get the animation element
+    const animation = entryItem.querySelector('.delete-animation');
+    
+    // Activate the animation
+    animation.classList.add('active');
+    entryItem.classList.add('deleting');
+    
+    setTimeout(() => {
+        // Show confirmation dialog
+        if (confirm('Are you sure you want to delete this entry?')) {
+            // Wait for animation to complete before submitting the form
+            form.submit();
+        } else {
+            // If user cancels, remove the animation classes
+            animation.classList.remove('active');
+            entryItem.classList.remove('deleting');
+        }
+    }, 500);
+
+    return false;
+}
+</script>
 </body>
 </html> 
+{% endblock %}
