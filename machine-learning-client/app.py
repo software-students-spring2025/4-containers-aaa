@@ -19,6 +19,22 @@ from deepgram import (
 # Load environment variables from .env file
 load_dotenv()
 
+AUDIO_FOLDER = "/app/uploaded_audio"
+
+# local mode
+if os.getenv("MODE") == "local":
+    # Look for audio files in the web-app's static directory
+    AUDIO_FOLDER = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)),
+        "web-app",
+        "static",
+        "uploaded_audio",
+    )
+elif os.getenv("MODE") == "docker":
+    AUDIO_FOLDER = "/app/uploaded_audio"
+
+print(f"AUDIO_FOLDER: {AUDIO_FOLDER}")
+
 # Connect to MongoDB
 mongo_host = os.getenv(
     "MONGO_HOST", "mongodb"
@@ -96,6 +112,7 @@ def process_transcript_api():
     Returns:
         json: message and transcript
     """
+    print("Received transcript request")
     data = request.get_json()
     voice_data_rel_file_path = data.get("audio_file_path")
 
@@ -108,7 +125,7 @@ def process_transcript_api():
     filename = os.path.basename(voice_data_rel_file_path)
 
     # Use the shared volume path
-    file_path = os.path.join("/app/uploaded_audio", filename)
+    file_path = os.path.join(AUDIO_FOLDER, filename)
     print(f"Looking for file at: {file_path}")
 
     # Check if file exists

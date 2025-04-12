@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="/static/css/style.css"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="background-container">
+        <div class="left-background">
+            <img src="/static/images/background/left1.png" alt="background" class="background-image" id="background-left1">
+            <img src="/static/images/background/left2.png" alt="background" class="background-image" id="background-left2">
+            <img src="/static/images/background/left3.png" alt="background" class="background-image" id="background-left3">
+            <img src="/static/images/background/left4.png" alt="background" class="background-image" id="background-left4">
+        </div>
+        <div class="right-background">
+            <img src="/static/images/background/right1.png" alt="background" class="background-image" id="background-right1">
+            <img src="/static/images/background/right2.png" alt="background" class="background-image" id="background-right2">
+            <img src="/static/images/background/right3.png" alt="background" class="background-image" id="background-right3">
+            <img src="/static/images/background/right4.png" alt="background" class="background-image" id="background-right4">
+            <img src="/static/images/background/left4.png" alt="background" class="background-image" id="background-right5">
+        </div> 
+    </div>
+    <div class="all-container">
+        {% block content %}
+        {% endblock %}
+    </div>
+    <script>
+        
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     const images = document.querySelectorAll('.background-image');
+        //     let lastScrollY = window.scrollY;
+        //     let ticking = false;
+
+        //     // Parallax speeds for each image (different speeds create depth)
+        //     const speeds = {
+        //         'background-left1': 0.1,
+        //         'background-left2': 0.15,
+        //         'background-left3': 0.2,
+        //         'background-left4': 0.3,
+        //         'background-right1': 0.1,
+        //         'background-right2': 0.15,
+        //         'background-right3': 0.2,
+        //         'background-right4': 0.4
+        //     };
+
+        //     function updateParallax() {
+        //         const scrollY = window.scrollY;
+        //         const deltaY = scrollY - lastScrollY;
+                
+        //         images.forEach(img => {
+        //             const speed = speeds[img.id] || 0.15;
+        //             const currentTop = parseFloat(img.style.top || getComputedStyle(img).top);
+        //             const newTop = currentTop + (deltaY * speed);
+        //             img.style.top = `${newTop}px`;
+        //         });
+
+        //         lastScrollY = scrollY;
+        //         ticking = false;
+        //     }
+
+        //     function onScroll() {
+        //         if (!ticking) {
+        //             setTimeout(() => {
+        //                 window.requestAnimationFrame(updateParallax);
+        //                 ticking = true;
+        //             },500);
+                    
+        //         }
+        //     }
+
+        //     // Initialize positions
+        //     images.forEach(img => {
+        //         const computedStyle = getComputedStyle(img);
+        //         img.style.top = computedStyle.top;
+        //     });
+
+        //     // Add scroll event listener
+        //     window.addEventListener('scroll', onScroll, { passive: true });
+        // });
+    </script>
+  </body>
+</html>

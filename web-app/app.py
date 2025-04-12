@@ -19,6 +19,13 @@ load_dotenv()
 
 
 # Connect to MongoDB
+ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://ml-client:6000/get-transcripts")
+if os.getenv("MODE") == "docker":
+    ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://ml-client:6000/get-transcripts")
+elif os.getenv("MODE") == "local":
+    ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://localhost:6000/get-transcripts")
+
+print(f"ML_CLIENT_URL: {ML_CLIENT_URL}")
 mongo_host = os.getenv("MONGO_HOST", "mongodb")
 mongo_port = os.getenv("MONGO_PORT", "27017")
 mongo_username = os.getenv("MONGO_INITDB_ROOT_USERNAME", "admin")
@@ -30,9 +37,6 @@ client = MongoClient(
 )
 db = client[mongo_db_name]
 collection = db["transcriptions"]
-
-# ML Settings
-ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://ml-client:6000/get-transcripts")
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = os.path.join("static", "uploaded_audio")
@@ -211,6 +215,7 @@ def upload():
             try:
                 print(f"Sending file to ML client: {filepath}")
                 ml_response = trigger_ml(filepath)
+                print(f"ML client response: {ml_response}")
                 transcript = ml_response.get("transcript", "")
                 metadata["transcript"] = transcript
             except requests.exceptions.RequestException as e:
@@ -345,7 +350,8 @@ def trigger_ml(filepath):
         response_data = response.json()
         print(f"ML client response: {response_data}")
         return response_data
-    except requests.exceptions.RequestException:
+    except requests.exceptions.RequestException as e:
+        print(f"Request exception: {e}")
         return "Request exception"
     except ConnectionError:
         return "Connection error"
