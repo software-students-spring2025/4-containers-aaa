@@ -23,7 +23,7 @@ This is a full-stack, containerized web application that allows users to upload 
 
 ## Structure
 
-- `web-app/`: Frontend + backend Flask app
+- `web-app/`: Frontend HTML CSS + backend Flask app
 - `machine-learning-client/`: Deepgram ML client for transcript generation
 - `docker-compose.yml`: Service orchestration
 - `.env`: Runtime environment variables
@@ -76,10 +76,14 @@ http://localhost:5000
 
 ## Notes
 
+- When running in local, all the uploaded recordings will be stored in `./web-app/static/uploaded_audio` folder
 - Transcription is triggered automatically on upload
 - Shared volume between web and ML client ensures ML has access to the audio file
 - You cannot either upload the MP3 or record
   for debugging, use .... log
+- .env file accepts two modes for `MODE` variable: `docker` or `local`.
+  Please make sure that you filled `MODE` in .env with correct mode that you have the project operating on.
+- If testing with pytest in local, please make sure the .env file has `MODE=docker`
 
 ## For Debugging
 
