@@ -5,9 +5,9 @@
 
 Build a containerized app that uses machine learning. See [instructions](./instructions.md) for details.
 
-# Voice Transcription Web App
+# Speech Analyze Web App
 
-This is a full-stack, containerized web application that allows users to upload audio files, which are then transcribed using a machine learning service (Deepgram API). Transcriptions are stored in MongoDB and displayed in a user-friendly interface.
+This is a full-stack, containerized web application that allows users to upload audio files, which are then transcribed using a machine learning service (Deepgram API). The transcripts are analyzed and the analysis are stored in MongoDB and displayed in a user-friendly interface.
 
 ## Team
 
