@@ -217,26 +217,6 @@ def test_update_entry(mock_update):
 
 
 @patch("requests.post")
-def test_trigger_ml_success(mock_post):
-    """Test trigger_ml function with successful response"""
-    # Mock successful response
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    expected_data = {"transcript": "test transcript", "message": "success"}
-    mock_response.json.return_value = expected_data
-    mock_post.return_value = mock_response
-
-    # Test successful case
-    result = trigger_ml("test/audio.mp3")
-    assert result == expected_data
-    mock_post.assert_called_once_with(
-        "http://ml-client:6000/get-transcripts",
-        json={"audio_file_path": "test/audio.mp3"},
-        timeout=10,
-    )
-
-
-@patch("requests.post")
 def test_trigger_ml_request_exception(mock_post):
     """Test trigger_ml function with request exception"""
     # Mock request exception

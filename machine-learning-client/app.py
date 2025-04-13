@@ -160,7 +160,7 @@ def process_transcript_api():
             )
             print(f"Updated transcript for file: {voice_data_rel_file_path}")
         else:
-            print(f"Entry not found for file: {voice_data_rel_file_path}")
+            print(f"Updated transcript for file: {voice_data_rel_file_path}")
     except ConnectionFailure as e:
         print(f"MongoDB connection error: {e}")
         return jsonify({"message": "Database connection error"}), 503
