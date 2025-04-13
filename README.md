@@ -133,6 +133,7 @@ To activate machine learning client (from the root of the project):
 
 ```bash
 cd machine-learning-client
+pip install -r requirements.txt
 python app.py
 ```
 
@@ -140,6 +141,7 @@ To activate web application (from the root of the project):
 
 ```bash
 cd web-app
+pip install -r requirements.txt
 python app.py
 ```
 
