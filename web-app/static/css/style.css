@@ -743,6 +743,18 @@ audio::-webkit-media-controls-volume-mute-button {
     }
 }
 
+/* @keyframes scroll-follow {
+    0% { 
+        transform: scale(1); 
+    }
+    50% { 
+        transform: scale(1.5); 
+    }
+    100% { 
+        transform: translateY(0);
+    }
+  } */
+
 /* Add animation delays for each image */
 #background-left1 {
     top: -10%;

@@ -28,58 +28,85 @@
         {% endblock %}
     </div>
     <script>
+        let lastScrollY = window.pageYOffset;
         
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     const images = document.querySelectorAll('.background-image');
-        //     let lastScrollY = window.scrollY;
-        //     let ticking = false;
-
-        //     // Parallax speeds for each image (different speeds create depth)
-        //     const speeds = {
-        //         'background-left1': 0.1,
-        //         'background-left2': 0.15,
-        //         'background-left3': 0.2,
-        //         'background-left4': 0.3,
-        //         'background-right1': 0.1,
-        //         'background-right2': 0.15,
-        //         'background-right3': 0.2,
-        //         'background-right4': 0.4
-        //     };
-
-        //     function updateParallax() {
-        //         const scrollY = window.scrollY;
-        //         const deltaY = scrollY - lastScrollY;
+        window.addEventListener('scroll', function() {
+            const images = document.querySelectorAll('.background-image');
+            const scrolled = window.pageYOffset;
+            
+            // Calculate the scroll direction once for all images
+            const deltaY = scrolled - lastScrollY;
+            lastScrollY = scrolled;
+            
+            // Define speeds for each image if not already set
+            const speeds = {
+                'background-left1': 0.15,
+                'background-left2': 0.15,
+                'background-left3': 0.15,
+                'background-left4': 0.15,
+                'background-right1': 0.15,
+                'background-right2': 0.15,
+                'background-right3': 0.15,
+                'background-right4': 0.15,
+                'background-right5': 0.15
+            };
+            
+            images.forEach(img => {
+                // Get speed from data attribute or from our speeds object
+                const speed = parseFloat(img.getAttribute('data-speed')) || speeds[img.id] || 0.5;
                 
-        //         images.forEach(img => {
-        //             const speed = speeds[img.id] || 0.15;
-        //             const currentTop = parseFloat(img.style.top || getComputedStyle(img).top);
-        //             const newTop = currentTop + (deltaY * speed);
-        //             img.style.top = `${newTop}px`;
-        //         });
-
-        //         lastScrollY = scrollY;
-        //         ticking = false;
-        //     }
-
-        //     function onScroll() {
-        //         if (!ticking) {
-        //             setTimeout(() => {
-        //                 window.requestAnimationFrame(updateParallax);
-        //                 ticking = true;
-        //             },500);
+                // Get current position
+                const currentTop = parseFloat(img.style.top || getComputedStyle(img).top);
+                
+                // Calculate the target position with a bounce effect
+                let targetTop;
+                if (deltaY > 0) { // Scrolling down
+                    // First move up, then back down with ease-in
+                    const bounceAmount = 30 * speed; // How far to bounce
+                    const progress = Math.min(1, Math.abs(deltaY) / 100); // Normalize progress
                     
-        //         }
-        //     }
-
-        //     // Initialize positions
-        //     images.forEach(img => {
-        //         const computedStyle = getComputedStyle(img);
-        //         img.style.top = computedStyle.top;
-        //     });
-
-        //     // Add scroll event listener
-        //     window.addEventListener('scroll', onScroll, { passive: true });
-        // });
+                    if (progress < 0.5) {
+                        // First half: move up
+                        targetTop = currentTop - (bounceAmount * (progress * 2));
+                    } else {
+                        // Second half: move back down with ease-in
+                        const easeInProgress = (progress - 0.5) * 2; // 0 to 1 for second half
+                        const easeInFactor = easeInProgress * easeInProgress; // Quadratic ease-in
+                        targetTop = currentTop - (bounceAmount * (1 - easeInFactor));
+                    }
+                } else if (deltaY < 0) { // Scrolling up
+                    // First move down, then back up with ease-in
+                    const bounceAmount = 30 * speed; // How far to bounce
+                    const progress = Math.min(1, Math.abs(deltaY) / 100); // Normalize progress
+                    
+                    if (progress < 0.5) {
+                        // First half: move down
+                        targetTop = currentTop + (bounceAmount * (progress * 2));
+                    } else {
+                        // Second half: move back up with ease-in
+                        const easeInProgress = (progress - 0.5) * 2; // 0 to 1 for second half
+                        const easeInFactor = easeInProgress * easeInProgress; // Quadratic ease-in
+                        targetTop = currentTop + (bounceAmount * (1 - easeInFactor));
+                    }
+                } else {
+                    // No scrolling, maintain current position
+                    targetTop = currentTop;
+                }
+                
+                // Apply the new position with a smooth transition
+                img.style.transition = 'top 0.3s ease-out';
+                img.style.top = `${targetTop}px`;
+            });
+        });
+        
+        // Initialize positions on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('.background-image');
+            images.forEach(img => {
+                const computedStyle = getComputedStyle(img);
+                img.style.top = computedStyle.top;
+            });
+        });
     </script>
   </body>
 </html>
